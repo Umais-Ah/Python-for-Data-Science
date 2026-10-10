@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pandas Complete Cheatsheet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700;900&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --accent1: #58a6ff;
+    --accent2: #56d364;
+    --accent3: #e3b341;
+    --accent4: #f78166;
+    --accent5: #bc8cff;
+    --accent6: #39c5cf;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --code-bg: #0d1117;
+    --tag-bg: #1f2937;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* HEADER */
+  .hero {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 40%, #1a2332 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 36px 40px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(88,166,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(90deg, #58a6ff, #bc8cff, #56d364);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    color: var(--muted);
+    margin-top: 6px;
+    font-size: 14px;
+  }
+  .badges {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px;
+  }
+  .badge {
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 16px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .card.wide {
+    grid-column: 1 / -1;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .card-header h2 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .card-body {
+    padding: 14px 16px;
+  }
+
+  /* COLOR THEMES PER SECTION */
+  .s1 .card-dot { background: var(--accent1); }
+  .s1 .card-header { border-left: 3px solid var(--accent1); }
+  .s1 .card-header h2 { color: var(--accent1); }
+
+  .s2 .card-dot { background: var(--accent2); }
+  .s2 .card-header { border-left: 3px solid var(--accent2); }
+  .s2 .card-header h2 { color: var(--accent2); }
+
+  .s3 .card-dot { background: var(--accent3); }
+  .s3 .card-header { border-left: 3px solid var(--accent3); }
+  .s3 .card-header h2 { color: var(--accent3); }
+
+  .s4 .card-dot { background: var(--accent4); }
+  .s4 .card-header { border-left: 3px solid var(--accent4); }
+  .s4 .card-header h2 { color: var(--accent4); }
+
+  .s5 .card-dot { background: var(--accent5); }
+  .s5 .card-header { border-left: 3px solid var(--accent5); }
+  .s5 .card-header h2 { color: var(--accent5); }
+
+  .s6 .card-dot { background: var(--accent6); }
+  .s6 .card-header { border-left: 3px solid var(--accent6); }
+  .s6 .card-header h2 { color: var(--accent6); }
+
+  /* CODE ENTRIES */
+  .entry {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #21262d;
+  }
+  .entry:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .entry-label {
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 10px;
+    display: block;
+    color: #e6edf3;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.6;
+  }
+
+  .kw  { color: #ff7b72; }   /* keyword / method */
+  .fn  { color: #d2a8ff; }   /* function name */
+  .st  { color: #a5d6ff; }   /* string */
+  .nu  { color: #79c0ff; }   /* number */
+  .cm  { color: #8b949e; }   /* comment */
+  .cl  { color: #ffa657; }   /* class */
+  .op  { color: #e3b341; }   /* operator */
+
+  .note {
+    background: #1c2128;
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 5px 5px 0;
+    padding: 7px 11px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 6px;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--muted);
+    padding: 6px 10px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #21262d;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent1);
+    white-space: nowrap;
+  }
+  tr:hover td { background: #1c2128; }
+
+  /* SECTION TITLE */
+  .section-title {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0 4px;
+    margin-top: 8px;
+  }
+  .section-title h3 {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Pandas Complete Cheatsheet</h1>
+  <p>Sessions 16–22 · All methods, attributes, and patterns — nothing skipped</p>
+  <div class="badges">
+    <span class="badge">Series</span>
+    <span class="badge">DataFrame</span>
+    <span class="badge">GroupBy</span>
+    <span class="badge">Merging</span>
+    <span class="badge">MultiIndex</span>
+    <span class="badge">Strings</span>
+    <span class="badge">DateTime</span>
+    <span class="badge">Pivot Tables</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title"><h3>📦 Session 16 — Pandas Series</h3></div>
+
+<!-- CREATING SERIES -->
+<div class="card s1">
+  <div class="card-header"><span class="card-dot"></span><h2>Creating Series</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">From list (default index)</div>
+      <code><span class="fn">pd</span>.<span class="kw">Series</span>([<span class="st">'India'</span>, <span class="st">'USA'</span>, <span class="st">'Nepal'</span>])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">From list with custom index + name</div>
+      <code><span class="fn">pd</span>.<span class="kw">Series</span>([<span class="nu">67</span>,<span class="nu">57</span>,<span class="nu">89</span>], index=[<span class="st">'maths'</span>,<span class="st">'english'</span>,<span class="st">'science'</span>], name=<span class="st">'marks'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">From dict (keys → index)</div>
+      <code><span class="fn">pd</span>.<span class="kw">Series</span>({<span class="st">'maths'</span>:<span class="nu">67</span>, <span class="st">'english'</span>:<span class="nu">57</span>}, name=<span class="st">'Marks'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">From CSV (squeeze to Series)</div>
+      <code><span class="fn">pd</span>.read_csv(<span class="st">'file.csv'</span>, index_col=<span class="st">'col'</span>).squeeze(<span class="st">'columns'</span>)</code>
+    </div>
+  </div>
+</div>
+
+<!-- SERIES ATTRIBUTES -->
+<div class="card s1">
+  <div class="card-header"><span class="card-dot"></span><h2>Series Attributes</h2></div>
+  <div class="card-body">
+    <table>
+      <tr><th>Attribute</th><th>Description</th></tr>
+      <tr><td>.size</td><td>Total elements (includes NaN)</td></tr>
+      <tr><td>.dtype</td><td>Data type (int64, object…)</td></tr>
+      <tr><td>.name</td><td>Name of the Series</td></tr>
+      <tr><td>.is_unique</td><td>True if all values are unique</td></tr>
+      <tr><td>.index</td><td>Index object</td></tr>
+      <tr><td>.values</td><td>NumPy array of values</td></tr>
+      <tr><td>.hasnans</td><td>True if any NaN exists</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- SERIES METHODS - STATS -->
+<div class="card s1">
+  <div class="card-header"><span class="card-dot"></span><h2>Math / Stats Methods</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Count (excludes NaN)</div>
+      <code>s.<span class="kw">count</span>()  <span class="cm"># vs .size which counts NaN</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Sum & Product</div>
+      <code>s.<span class="kw">sum</span>()    s.<span class="kw">product</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Central tendency</div>
+      <code>s.<span class="kw">mean</span>()  s.<span class="kw">median</span>()  s.<span class="kw">mode</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Spread</div>
+      <code>s.<span class="kw">std</span>()  s.<span class="kw">var</span>()  s.<span class="kw">min</span>()  s.<span class="kw">max</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Full summary</div>
+      <code>s.<span class="kw">describe</span>()</code>
+    </div>
+  </div>
+</div>
+
+<!-- SERIES INDEXING -->
+<div class="card s1">
+  <div class="card-header"><span class="card-dot"></span><h2>Indexing & Slicing</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Integer position</div>
+      <code>s[<span class="nu">0</span>]          <span class="cm"># first element</span>
+s[<span class="nu">5</span>:<span class="nu">16</span>]      <span class="cm"># slice</span>
+s[-<span class="nu">5</span>:]       <span class="cm"># last 5 (slicing only)</span>
+s[::<span class="nu">2</span>]       <span class="cm"># every other</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Fancy indexing (list of positions)</div>
+      <code>s[[<span class="nu">1</span>, <span class="nu">3</span>, <span class="nu">4</span>]]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Label indexing</div>
+      <code>s[<span class="st">'maths'</span>]    <span class="cm"># single label</span>
+s[[<span class="st">'maths'</span>, <span class="st">'science'</span>]]  <span class="cm"># multiple</span></code>
+    </div>
+    <div class="note">⚠ Negative integer indexing (s[-1]) doesn't work on Series; use slicing or .iloc</div>
+  </div>
+</div>
+
+<!-- SERIES EDITING -->
+<div class="card s1">
+  <div class="card-header"><span class="card-dot"></span><h2>Editing Series Values</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Set single value</div>
+      <code>s[<span class="nu">1</span>] = <span class="nu">100</span>
+s[<span class="st">'maths'</span>] = <span class="nu">80</span>   <span class="cm"># adds if missing</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Slice assignment</div>
+      <code>s[<span class="nu">2</span>:<span class="nu">4</span>] = [<span class="nu">15</span>, <span class="nu">100</span>]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Fancy indexing assignment</div>
+      <code>s[[<span class="nu">0</span>, <span class="nu">3</span>, <span class="nu">4</span>]] = [<span class="nu">0</span>, <span class="nu">0</span>, <span class="nu">0</span>]</code>
+    </div>
+  </div>
+</div>
+
+<!-- BOOLEAN INDEXING -->
+<div class="card s1">
+  <div class="card-header"><span class="card-dot"></span><h2>Boolean Indexing</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Relational operators (broadcast)</div>
+      <code>s <span class="op">>=</span> <span class="nu">50</span>       <span class="cm"># returns boolean Series</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Filter rows</div>
+      <code>s[s <span class="op">>=</span> <span class="nu">50</span>]     <span class="cm"># 50s & 100s</span>
+s[s <span class="op">==</span> <span class="nu">0</span>]      <span class="cm"># ducks</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Count matching</div>
+      <code>s[s <span class="op">></span> <span class="nu">200</span>].<span class="kw">size</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Arithmetic (broadcasting)</div>
+      <code><span class="nu">100</span> <span class="op">-</span> s   <span class="cm"># applies to every element</span></code>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORTANT SERIES METHODS -->
+<div class="card s1">
+  <div class="card-header"><span class="card-dot"></span><h2>Important Series Methods</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Type casting (memory saving)</div>
+      <code>s.<span class="kw">astype</span>(<span class="st">'int16'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Range filter</div>
+      <code>s.<span class="kw">between</span>(<span class="nu">51</span>, <span class="nu">99</span>)   <span class="cm"># inclusive both ends</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Clip to range</div>
+      <code>s.<span class="kw">clip</span>(<span class="nu">100</span>, <span class="nu">200</span>)  <span class="cm"># cap min/max</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Value frequency</div>
+      <code>s.<span class="kw">value_counts</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Sort values / index</div>
+      <code>s.<span class="kw">sort_values</span>(ascending=<span class="kw">False</span>)
+s.<span class="kw">sort_index</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Remove duplicates</div>
+      <code>s.<span class="kw">drop_duplicates</span>(keep=<span class="st">'last'</span>)
+s.<span class="kw">duplicated</span>().<span class="kw">sum</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Missing values</div>
+      <code>s.<span class="kw">isnull</span>().<span class="kw">sum</span>()
+s.<span class="kw">dropna</span>()
+s.<span class="kw">fillna</span>(<span class="nu">0</span>)            <span class="cm"># fill with constant</span>
+s.<span class="kw">fillna</span>(s.<span class="kw">mean</span>())     <span class="cm"># fill with mean</span>
+s.<span class="kw">fillna</span>(method=<span class="st">'ffill'</span>) <span class="cm"># forward fill</span>
+s.<span class="kw">fillna</span>(method=<span class="st">'bfill'</span>) <span class="cm"># backward fill</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Membership check</div>
+      <code>s.<span class="kw">isin</span>([<span class="nu">49</span>, <span class="nu">99</span>])   <span class="cm"># boolean mask</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Apply function</div>
+      <code>s.<span class="kw">apply</span>(<span class="kw">lambda</span> x: x.split()[<span class="nu">0</span>].upper())
+s.<span class="kw">apply</span>(<span class="kw">lambda</span> x: <span class="st">'good'</span> <span class="kw">if</span> x <span class="op">></span> s.<span class="kw">mean</span>() <span class="kw">else</span> <span class="st">'bad'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">head / tail / sample</div>
+      <code>s.<span class="kw">head</span>(<span class="nu">5</span>)  s.<span class="kw">tail</span>(<span class="nu">10</span>)  s.<span class="kw">sample</span>(<span class="nu">5</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Deep copy (avoid view mutation)</div>
+      <code>s_new = s.<span class="kw">copy</span>()</code>
+    </div>
+  </div>
+</div>
+
+<!-- PYTHON BUILTINS WITH SERIES -->
+<div class="card s1">
+  <div class="card-header"><span class="card-dot"></span><h2>Python Builtins & Conversion</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Builtins</div>
+      <code><span class="fn">len</span>(s)    <span class="fn">type</span>(s)   <span class="fn">sorted</span>(s)
+<span class="fn">max</span>(s)    <span class="fn">min</span>(s)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Type conversion</div>
+      <code><span class="fn">list</span>(s)   <span class="fn">dict</span>(s)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Membership (default: checks index)</div>
+      <code><span class="st">'Ali'</span> <span class="kw">in</span> s
+<span class="st">'Alia'</span> <span class="kw">in</span> s.<span class="kw">values</span>   <span class="cm"># check values</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Looping</div>
+      <code><span class="kw">for</span> v <span class="kw">in</span> s:          <span class="cm"># iterates values</span>
+<span class="kw">for</span> i <span class="kw">in</span> s.<span class="kw">index</span>:    <span class="cm"># iterates index</span></code>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title"><h3>🗂 Session 17 — DataFrames</h3></div>
+
+<!-- CREATING DATAFRAME -->
+<div class="card s2">
+  <div class="card-header"><span class="card-dot"></span><h2>Creating DataFrames</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">From list of lists</div>
+      <code><span class="fn">pd</span>.<span class="kw">DataFrame</span>([[<span class="nu">100</span>,<span class="nu">80</span>],[<span class="nu">90</span>,<span class="nu">70</span>]], columns=[<span class="st">'iq'</span>,<span class="st">'marks'</span>])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">From dict</div>
+      <code><span class="fn">pd</span>.<span class="kw">DataFrame</span>({<span class="st">'name'</span>:[<span class="st">'Ali'</span>,<span class="st">'Ahmed'</span>], <span class="st">'iq'</span>:[<span class="nu">100</span>,<span class="nu">90</span>]})</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">From CSV</div>
+      <code>df = <span class="fn">pd</span>.read_csv(<span class="st">'movies.csv'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Set index after creation</div>
+      <code>df.<span class="kw">set_index</span>(<span class="st">'name'</span>, inplace=<span class="kw">True</span>)</code>
+    </div>
+  </div>
+</div>
+
+<!-- DF ATTRIBUTES -->
+<div class="card s2">
+  <div class="card-header"><span class="card-dot"></span><h2>DataFrame Attributes & Methods</h2></div>
+  <div class="card-body">
+    <table>
+      <tr><th>Method/Attr</th><th>Description</th></tr>
+      <tr><td>.shape</td><td>Tuple (rows, cols)</td></tr>
+      <tr><td>.dtypes</td><td>dtype of each column</td></tr>
+      <tr><td>.index</td><td>Row index object</td></tr>
+      <tr><td>.columns</td><td>Column labels</td></tr>
+      <tr><td>.values</td><td>NumPy array</td></tr>
+      <tr><td>.head(n)</td><td>First n rows (default 5)</td></tr>
+      <tr><td>.tail(n)</td><td>Last n rows</td></tr>
+      <tr><td>.sample(n)</td><td>Random n rows</td></tr>
+      <tr><td>.info()</td><td>Types + non-null counts</td></tr>
+      <tr><td>.describe()</td><td>Summary statistics</td></tr>
+      <tr><td>.isnull().sum()</td><td>Count NaN per column</td></tr>
+      <tr><td>.duplicated().sum()</td><td>Count duplicate rows</td></tr>
+    </table>
+    <div class="entry" style="margin-top:10px">
+      <div class="entry-label">Rename columns / index</div>
+      <code>df.<span class="kw">rename</span>(columns={<span class="st">'marks'</span>:<span class="st">'percent'</span>}, inplace=<span class="kw">True</span>)
+df.<span class="kw">rename</span>(index={<span class="st">'Uri: The Surgical Strike'</span>:<span class="st">'Uri'</span>})</code>
+    </div>
+  </div>
+</div>
+
+<!-- SELECTING COLS/ROWS -->
+<div class="card s2">
+  <div class="card-header"><span class="card-dot"></span><h2>Selecting Rows & Columns</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Single column → Series</div>
+      <code>df[<span class="st">'title'</span>]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Multiple columns → DataFrame</div>
+      <code>df[[<span class="st">'title'</span>, <span class="st">'year'</span>, <span class="st">'actors'</span>]]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">iloc — position-based</div>
+      <code>df.<span class="kw">iloc</span>[<span class="nu">0</span>]           <span class="cm"># row 0 → Series</span>
+df.<span class="kw">iloc</span>[<span class="nu">5</span>:<span class="nu">16</span>:<span class="nu">2</span>]    <span class="cm"># every other row</span>
+df.<span class="kw">iloc</span>[[<span class="nu">0</span>,<span class="nu">4</span>,<span class="nu">5</span>]]    <span class="cm"># fancy indexing</span>
+df.<span class="kw">iloc</span>[<span class="nu">0</span>:<span class="nu">3</span>, <span class="nu">0</span>:<span class="nu">3</span>]  <span class="cm"># rows + cols</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">loc — label-based (last index INCLUDED)</div>
+      <code>df.<span class="kw">loc</span>[<span class="st">'Ali'</span>]
+df.<span class="kw">loc</span>[<span class="st">'Ali'</span>:<span class="st">'Affan'</span>:<span class="nu">2</span>]   <span class="cm"># step</span>
+df.<span class="kw">loc</span>[[<span class="st">'Ali'</span>,<span class="st">'Ahmed'</span>]]
+df.<span class="kw">loc</span>[<span class="nu">0</span>:<span class="nu">2</span>, <span class="st">'title'</span>:<span class="st">'poster'</span>]</code>
+    </div>
+  </div>
+</div>
+
+<!-- FILTERING -->
+<div class="card s2">
+  <div class="card-header"><span class="card-dot"></span><h2>Filtering a DataFrame</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Single condition</div>
+      <code>df[df[<span class="st">'MatchNumber'</span>] <span class="op">==</span> <span class="st">'Final'</span>]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Multiple conditions (& and |)</div>
+      <code>df[(df[<span class="st">'WinningTeam'</span>] <span class="op">==</span> <span class="st">'CSK'</span>) <span class="op">&</span> (df[<span class="st">'City'</span>] <span class="op">==</span> <span class="st">'Kolkata'</span>)]
+df[(df[<span class="st">'rating'</span>] <span class="op">></span> <span class="nu">8</span>) <span class="op">&</span> (df[<span class="st">'votes'</span>] <span class="op">></span> <span class="nu">1000</span>)]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">String contains + rating</div>
+      <code>mask1 = df[<span class="st">'genres'</span>].<span class="kw">str</span>.contains(<span class="st">'Action'</span>)
+mask2 = df[<span class="st">'rating'</span>] <span class="op">></span> <span class="nu">7.5</span>
+df[mask1 <span class="op">&</span> mask2]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Toss winner = match winner %</div>
+      <code>(df[df[<span class="st">'TossWinner'</span>]<span class="op">==</span>df[<span class="st">'WinningTeam'</span>]].<span class="kw">shape</span>[<span class="nu">0</span>] <span class="op">/</span> df.<span class="kw">shape</span>[<span class="nu">0</span>]) <span class="op">*</span> <span class="nu">100</span></code>
+    </div>
+  </div>
+</div>
+
+<!-- ADDING COLS / MATH -->
+<div class="card s2">
+  <div class="card-header"><span class="card-dot"></span><h2>Adding Columns & Math Methods</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">New constant column</div>
+      <code>df[<span class="st">'Country'</span>] = <span class="st">'India'</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Derived column</div>
+      <code>df[<span class="st">'lead_actor'</span>] = df[<span class="st">'actors'</span>].<span class="kw">str</span>.split(<span class="st">'|'</span>).<span class="kw">apply</span>(<span class="kw">lambda</span> x: x[<span class="nu">0</span>])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Axis-aware math</div>
+      <code>df.<span class="kw">sum</span>(axis=<span class="nu">0</span>)   <span class="cm"># column sums (default)</span>
+df.<span class="kw">sum</span>(axis=<span class="nu">1</span>)   <span class="cm"># row sums</span>
+df.<span class="kw">mean</span>()  df.<span class="kw">var</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Type conversion</div>
+      <code>df[<span class="st">'ID'</span>] = df[<span class="st">'ID'</span>].<span class="kw">astype</span>(<span class="st">'int32'</span>)
+df[<span class="st">'Season'</span>] = df[<span class="st">'Season'</span>].<span class="kw">astype</span>(<span class="st">'category'</span>)</code>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title"><h3>🔧 Session 18 — DataFrame Methods (Deep Dive)</h3></div>
+
+<!-- VALUE_COUNTS / SORT / RANK -->
+<div class="card s3">
+  <div class="card-header"><span class="card-dot"></span><h2>value_counts / sort_values / rank</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">value_counts — Series and DataFrame</div>
+      <code>s.<span class="kw">value_counts</span>()
+df.<span class="kw">value_counts</span>()    <span class="cm"># counts unique row combos</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">sort_values — all options</div>
+      <code>df.<span class="kw">sort_values</span>(<span class="st">'name'</span>)                        <span class="cm"># NaN last</span>
+df.<span class="kw">sort_values</span>(<span class="st">'name'</span>, na_position=<span class="st">'first'</span>)   <span class="cm"># NaN first</span>
+df.<span class="kw">sort_values</span>(<span class="st">'name'</span>, ascending=<span class="kw">False</span>)
+df.<span class="kw">sort_values</span>([<span class="st">'year'</span>,<span class="st">'title'</span>], ascending=[<span class="kw">True</span>,<span class="kw">False</span>])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">rank — create rank column</div>
+      <code>df[<span class="st">'batting_rank'</span>] = df[<span class="st">'runs'</span>].<span class="kw">rank</span>(ascending=<span class="kw">False</span>)
+df.<span class="kw">sort_values</span>(<span class="st">'batting_rank'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">sort_index</div>
+      <code>s.<span class="kw">sort_index</span>()            <span class="cm"># alphabetical</span>
+df.<span class="kw">sort_index</span>(ascending=<span class="kw">False</span>)</code>
+    </div>
+  </div>
+</div>
+
+<!-- SET/RESET/RENAME INDEX -->
+<div class="card s3">
+  <div class="card-header"><span class="card-dot"></span><h2>set_index / reset_index / rename</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Set index</div>
+      <code>df.<span class="kw">set_index</span>(<span class="st">'batter'</span>, inplace=<span class="kw">True</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Reset index (turns index → column)</div>
+      <code>df.<span class="kw">reset_index</span>()                <span class="cm"># drop=False keeps old idx as col</span>
+df.<span class="kw">reset_index</span>(inplace=<span class="kw">True</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Series → DataFrame via reset_index</div>
+      <code><span class="fn">type</span>(s.<span class="kw">reset_index</span>())  <span class="cm"># → DataFrame!</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Replace index without losing col</div>
+      <code>df.<span class="kw">reset_index</span>().<span class="kw">set_index</span>(<span class="st">'new_col'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">rename</div>
+      <code>df.<span class="kw">rename</span>(columns={<span class="st">'imdb_id'</span>:<span class="st">'imdb'</span>}, inplace=<span class="kw">True</span>)
+df.<span class="kw">rename</span>(index={<span class="st">'Uri: The Surgical Strike'</span>:<span class="st">'Uri'</span>})</code>
+    </div>
+  </div>
+</div>
+
+<!-- UNIQUE/NUNIQUE/NULL -->
+<div class="card s3">
+  <div class="card-header"><span class="card-dot"></span><h2>unique / nunique / isnull / notnull</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">unique — includes NaN</div>
+      <code>s.<span class="kw">unique</span>()           <span class="cm"># array of unique values</span>
+<span class="fn">len</span>(s.<span class="kw">unique</span>())    <span class="cm"># count unique + NaN</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">nunique — excludes NaN</div>
+      <code>s.<span class="kw">nunique</span>()          <span class="cm"># no NaN counted</span>
+df.<span class="kw">nunique</span>()          <span class="cm"># per column</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">isnull / notnull</div>
+      <code>s.<span class="kw">isnull</span>()            <span class="cm"># True = NaN</span>
+s.<span class="kw">notnull</span>()           <span class="cm"># True = not NaN</span>
+s.<span class="kw">hasnans</span>             <span class="cm"># bool: any NaN?</span>
+df[df[<span class="st">'name'</span>].<span class="kw">notnull</span>()]</code>
+    </div>
+  </div>
+</div>
+
+<!-- DROPNA / FILLNA / DROP_DUPS -->
+<div class="card s3">
+  <div class="card-header"><span class="card-dot"></span><h2>dropna / fillna / drop_duplicates</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">dropna — how parameter</div>
+      <code>df.<span class="kw">dropna</span>()                   <span class="cm"># how='any' default</span>
+df.<span class="kw">dropna</span>(how=<span class="st">'all'</span>)           <span class="cm"># all cols must be NaN</span>
+df.<span class="kw">dropna</span>(subset=[<span class="st">'name'</span>])      <span class="cm"># only if name is NaN</span>
+df.<span class="kw">dropna</span>(subset=[<span class="st">'name'</span>,<span class="st">'college'</span>])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">fillna</div>
+      <code>s.<span class="kw">fillna</span>(<span class="st">'unknown'</span>)
+df[<span class="st">'package'</span>].<span class="kw">fillna</span>(df[<span class="st">'package'</span>].<span class="kw">mean</span>())</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">drop_duplicates</div>
+      <code>df.<span class="kw">drop_duplicates</span>()           <span class="cm"># keep first</span>
+df.<span class="kw">drop_duplicates</span>(keep=<span class="st">'last'</span>)
+df.<span class="kw">duplicated</span>().<span class="kw">sum</span>()</code>
+    </div>
+  </div>
+</div>
+
+<!-- DROP / APPLY / COPY -->
+<div class="card s3">
+  <div class="card-header"><span class="card-dot"></span><h2>drop / apply / copy</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">drop — rows or columns</div>
+      <code>s.<span class="kw">drop</span>(index=[<span class="nu">0</span>, <span class="nu">6</span>])
+df.<span class="kw">drop</span>(columns=[<span class="st">'branch'</span>, <span class="st">'cgpa'</span>])
+df.<span class="kw">drop</span>(index=[<span class="nu">0</span>, <span class="nu">8</span>])
+df.<span class="kw">set_index</span>(<span class="st">'name'</span>).<span class="kw">drop</span>(index=[<span class="st">'nitish'</span>])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">apply — Series (element-wise)</div>
+      <code><span class="kw">def</span> <span class="fn">sigmoid</span>(v):
+    <span class="kw">return</span> <span class="nu">1</span><span class="op">/</span><span class="nu">1</span> <span class="op">+</span> np.<span class="kw">exp</span>(<span class="op">-</span>v)
+s.<span class="kw">apply</span>(sigmoid)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">apply — DataFrame (row-wise, axis=1)</div>
+      <code><span class="kw">def</span> <span class="fn">euclidean</span>(row):
+    p1 = row[<span class="st">'1st point'</span>]; p2 = row[<span class="st">'2nd point'</span>]
+    <span class="kw">return</span> np.<span class="kw">sqrt</span>((p1[<span class="nu">0</span>]<span class="op">-</span>p2[<span class="nu">0</span>])<span class="op">**</span><span class="nu">2</span> <span class="op">+</span> (p1[<span class="nu">1</span>]<span class="op">-</span>p2[<span class="nu">1</span>])<span class="op">**</span><span class="nu">2</span>)
+df.<span class="kw">apply</span>(euclidean, axis=<span class="nu">1</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">copy — deep copy prevents mutation</div>
+      <code>new = df.<span class="kw">copy</span>()    <span class="cm"># safe to modify</span></code>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title"><h3>📊 Session 19 — GroupBy Objects</h3></div>
+
+<!-- GROUPBY BASICS -->
+<div class="card s4">
+  <div class="card-header"><span class="card-dot"></span><h2>GroupBy — Basics</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Create GroupBy</div>
+      <code>genres = df.<span class="kw">groupby</span>(<span class="st">'Genre'</span>)     <span class="cm"># single col</span>
+duo   = df.<span class="kw">groupby</span>([<span class="st">'Director'</span>,<span class="st">'Star1'</span>])  <span class="cm"># multi</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Built-in aggregations</div>
+      <code>genres.<span class="kw">min</span>()    genres.<span class="kw">max</span>()
+genres.<span class="kw">sum</span>()    genres.<span class="kw">mean</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Select col then agg</div>
+      <code>df.<span class="kw">groupby</span>(<span class="st">'Genre'</span>)[<span class="st">'Gross'</span>].<span class="kw">sum</span>().<span class="kw">sort_values</span>(ascending=<span class="kw">False</span>).<span class="kw">head</span>(<span class="nu">3</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Highest avg rating per genre</div>
+      <code>df.<span class="kw">groupby</span>(<span class="st">'Genre'</span>)[<span class="st">'IMDB_Rating'</span>].<span class="kw">mean</span>().<span class="kw">sort_values</span>(ascending=<span class="kw">False</span>).<span class="kw">head</span>(<span class="nu">1</span>)</code>
+    </div>
+  </div>
+</div>
+
+<!-- GROUPBY ATTRS/METHODS -->
+<div class="card s4">
+  <div class="card-header"><span class="card-dot"></span><h2>GroupBy Attributes & Methods</h2></div>
+  <div class="card-body">
+    <table>
+      <tr><th>Method</th><th>Description</th></tr>
+      <tr><td>len(g)</td><td>Number of groups</td></tr>
+      <tr><td>g.size()</td><td>Item count per group</td></tr>
+      <tr><td>g.first()</td><td>First row of each group</td></tr>
+      <tr><td>g.last()</td><td>Last row of each group</td></tr>
+      <tr><td>g.nth(n)</td><td>Nth row (0-based)</td></tr>
+      <tr><td>g.get_group('Horror')</td><td>All rows of group</td></tr>
+      <tr><td>g.groups</td><td>Dict: group→index list</td></tr>
+      <tr><td>g.describe()</td><td>Stats per group</td></tr>
+      <tr><td>g.sample(n, replace=True)</td><td>n random rows per group</td></tr>
+      <tr><td>g.nunique()</td><td>Unique counts per group</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- GROUPBY AGG -->
+<div class="card s4">
+  <div class="card-header"><span class="card-dot"></span><h2>agg() Method</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Dict — different agg per column</div>
+      <code>genres.<span class="kw">agg</span>({
+    <span class="st">'Runtime'</span>:<span class="st">'mean'</span>,
+    <span class="st">'IMDB_Rating'</span>:<span class="st">'mean'</span>,
+    <span class="st">'Gross'</span>:<span class="st">'sum'</span>,
+    <span class="st">'Metascore'</span>:<span class="st">'min'</span>
+})</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">List — multiple aggs per column</div>
+      <code>genres[[<span class="st">'Runtime'</span>,<span class="st">'IMDB_Rating'</span>]].<span class="kw">agg</span>([<span class="st">'min'</span>,<span class="st">'max'</span>,<span class="st">'mean'</span>])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Mix — dict with lists</div>
+      <code>genres.<span class="kw">agg</span>({
+    <span class="st">'Runtime'</span>: [<span class="st">'min'</span>,<span class="st">'mean'</span>],
+    <span class="st">'Gross'</span>: <span class="st">'sum'</span>
+})</code>
+    </div>
+  </div>
+</div>
+
+<!-- GROUPBY APPLY -->
+<div class="card s4">
+  <div class="card-header"><span class="card-dot"></span><h2>Looping & apply() on Groups</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Loop to get top movie per genre</div>
+      <code>df_top = <span class="fn">pd</span>.<span class="kw">DataFrame</span>(columns=movies.<span class="kw">columns</span>)
+<span class="kw">for</span> group, data <span class="kw">in</span> genres:
+    top = data[data[<span class="st">'IMDB_Rating'</span>] <span class="op">==</span> data[<span class="st">'IMDB_Rating'</span>].<span class="kw">max</span>()]
+    df_top = <span class="fn">pd</span>.<span class="kw">concat</span>([df_top, top])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">apply — custom function per group</div>
+      <code><span class="kw">def</span> <span class="fn">count_A</span>(group):
+    <span class="kw">return</span> group[<span class="st">'Series_Title'</span>].<span class="kw">str</span>.startswith(<span class="st">'A'</span>).<span class="kw">sum</span>()
+genres.<span class="kw">apply</span>(count_A)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">apply — rank within group</div>
+      <code><span class="kw">def</span> <span class="fn">rank_movie</span>(group):
+    group[<span class="st">'genre_rank'</span>] = group[<span class="st">'IMDB_Rating'</span>].<span class="kw">rank</span>(ascending=<span class="kw">False</span>)
+    <span class="kw">return</span> group
+genres.<span class="kw">apply</span>(rank_movie)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">apply — normalize within group</div>
+      <code><span class="kw">def</span> <span class="fn">normalize</span>(group):
+    mn, mx = group[<span class="st">'IMDB_Rating'</span>].<span class="kw">min</span>(), group[<span class="st">'IMDB_Rating'</span>].<span class="kw">max</span>()
+    group[<span class="st">'norm_rating'</span>] = (group[<span class="st">'IMDB_Rating'</span>] <span class="op">-</span> mn) <span class="op">/</span> (mx <span class="op">-</span> mn)
+    <span class="kw">return</span> group
+genres.<span class="kw">apply</span>(normalize)</code>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title"><h3>🔗 Session 20 — Merging & Concatenating</h3></div>
+
+<!-- CONCAT -->
+<div class="card s5">
+  <div class="card-header"><span class="card-dot"></span><h2>pd.concat</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Stack vertically (axis=0, default)</div>
+      <code><span class="fn">pd</span>.<span class="kw">concat</span>([nov, dec])
+<span class="fn">pd</span>.<span class="kw">concat</span>([nov, dec], ignore_index=<span class="kw">True</span>)  <span class="cm"># reset index</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">MultiIndex result (with keys)</div>
+      <code>multi = <span class="fn">pd</span>.<span class="kw">concat</span>([nov, dec], keys=[<span class="st">'Nov'</span>,<span class="st">'Dec'</span>])
+multi.<span class="kw">loc</span>[(<span class="st">'Dec'</span>, <span class="nu">4</span>)]   <span class="cm"># access by (key, index)</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Stack horizontally (axis=1)</div>
+      <code><span class="fn">pd</span>.<span class="kw">concat</span>([nov, dec], axis=<span class="nu">1</span>)</code>
+    </div>
+  </div>
+</div>
+
+<!-- MERGE JOINS -->
+<div class="card s5">
+  <div class="card-header"><span class="card-dot"></span><h2>DataFrame.merge() — All Joins</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Inner join (intersection)</div>
+      <code>students.<span class="kw">merge</span>(regs, how=<span class="st">'inner'</span>, on=<span class="st">'student_id'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Left join (keep all left)</div>
+      <code>courses.<span class="kw">merge</span>(regs, how=<span class="st">'left'</span>, on=<span class="st">'course_id'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Right join</div>
+      <code>students.<span class="kw">merge</span>(regs, how=<span class="st">'right'</span>, on=<span class="st">'student_id'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Outer join (all rows)</div>
+      <code>students.<span class="kw">merge</span>(regs, how=<span class="st">'outer'</span>, on=<span class="st">'student_id'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Different key names (left_on / right_on)</div>
+      <code>delivery.<span class="kw">merge</span>(matches, how=<span class="st">'inner'</span>, left_on=<span class="st">'match_id'</span>, right_on=<span class="st">'id'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Self join (partner matching)</div>
+      <code>students.<span class="kw">merge</span>(students, how=<span class="st">'inner'</span>, left_on=<span class="st">'partner'</span>, right_on=<span class="st">'student_id'</span>)[[<span class="st">'name_x'</span>,<span class="st">'name_y'</span>]]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Chain merges (3 tables)</div>
+      <code>students.<span class="kw">merge</span>(regs, on=<span class="st">'student_id'</span>).<span class="kw">merge</span>(courses, on=<span class="st">'course_id'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Alternate syntax</div>
+      <code><span class="fn">pd</span>.<span class="kw">merge</span>(students, regs, how=<span class="st">'inner'</span>, on=<span class="st">'student_id'</span>)</code>
+    </div>
+  </div>
+</div>
+
+<!-- MERGE USE-CASES -->
+<div class="card s5">
+  <div class="card-header"><span class="card-dot"></span><h2>Common Merge Patterns</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Total revenue</div>
+      <code>regs.<span class="kw">merge</span>(courses, on=<span class="st">'course_id'</span>)[<span class="st">'price'</span>].<span class="kw">sum</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Students in both months (intersection)</div>
+      <code>nov.<span class="kw">merge</span>(dec, on=<span class="st">'student_id'</span>)[<span class="st">'student_id'</span>].<span class="kw">unique</span>()
+<span class="cm"># or:</span>
+np.<span class="kw">intersect1d</span>(nov[<span class="st">'student_id'</span>], dec[<span class="st">'student_id'</span>])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Courses with no enrollment</div>
+      <code>no_enroll = np.<span class="kw">setdiff1d</span>(courses[<span class="st">'course_id'</span>], regs[<span class="st">'course_id'</span>])
+courses[courses[<span class="st">'course_id'</span>].<span class="kw">isin</span>(no_enroll)]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Orange cap per season (IPL)</div>
+      <code>temp_df.<span class="kw">groupby</span>([<span class="st">'season'</span>,<span class="st">'batsman'</span>])[<span class="st">'batsman_runs'</span>].<span class="kw">sum</span>() \
+    .<span class="kw">reset_index</span>().<span class="kw">sort_values</span>(<span class="st">'batsman_runs'</span>, ascending=<span class="kw">False</span>) \
+    .<span class="kw">drop_duplicates</span>(subset=[<span class="st">'season'</span>], keep=<span class="st">'first'</span>) \
+    .<span class="kw">sort_values</span>(<span class="st">'season'</span>)</code>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title"><h3>🏗 Session 21 — MultiIndex Objects</h3></div>
+
+<!-- CREATING MULTIINDEX -->
+<div class="card s6">
+  <div class="card-header"><span class="card-dot"></span><h2>Creating MultiIndex</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">from_tuples</div>
+      <code>idx = <span class="fn">pd</span>.<span class="kw">MultiIndex</span>.from_tuples([(<span class="st">'cse'</span>,<span class="nu">2019</span>), (<span class="st">'cse'</span>,<span class="nu">2020</span>), (<span class="st">'ece'</span>,<span class="nu">2019</span>)])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">from_product (cartesian product) — most common</div>
+      <code>idx = <span class="fn">pd</span>.<span class="kw">MultiIndex</span>.from_product([[<span class="st">'cse'</span>,<span class="st">'ece'</span>],[<span class="nu">2019</span>,<span class="nu">2020</span>,<span class="nu">2021</span>,<span class="nu">2022</span>]])
+idx.<span class="kw">levels</span>[<span class="nu">0</span>]   <span class="cm"># outer level</span>
+idx.<span class="kw">levels</span>[<span class="nu">1</span>]   <span class="cm"># inner level</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">MultiIndex Series</div>
+      <code>s = <span class="fn">pd</span>.<span class="kw">Series</span>([<span class="nu">1</span>,<span class="nu">2</span>,<span class="nu">3</span>,<span class="nu">4</span>,<span class="nu">5</span>,<span class="nu">6</span>,<span class="nu">7</span>,<span class="nu">8</span>], index=idx)
+s[(<span class="st">'cse'</span>, <span class="nu">2022</span>)]   <span class="cm"># exact lookup</span>
+s[<span class="st">'cse'</span>]           <span class="cm"># outer level slice</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">MultiIndex DataFrame (row index)</div>
+      <code>df = <span class="fn">pd</span>.<span class="kw">DataFrame</span>(data, index=multiindex, columns=[<span class="st">'avg_package'</span>,<span class="st">'students'</span>])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">MultiIndex DataFrame (column)</div>
+      <code>col_idx = <span class="fn">pd</span>.<span class="kw">MultiIndex</span>.from_product([[<span class="st">'delhi'</span>,<span class="st">'mumbai'</span>],[<span class="st">'avg_package'</span>,<span class="st">'students'</span>]])
+df = <span class="fn">pd</span>.<span class="kw">DataFrame</span>(data, index=[<span class="nu">2019</span>,<span class="nu">2020</span>,<span class="nu">2021</span>,<span class="nu">2022</span>], columns=col_idx)</code>
+    </div>
+  </div>
+</div>
+
+<!-- STACK / UNSTACK -->
+<div class="card s6">
+  <div class="card-header"><span class="card-dot"></span><h2>stack / unstack / swaplevel</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">unstack — inner row index → columns</div>
+      <code>s.<span class="kw">unstack</span>()          <span class="cm"># Series → DataFrame</span>
+df.<span class="kw">unstack</span>()          <span class="cm"># moves row level to column</span>
+df.<span class="kw">unstack</span>().<span class="kw">unstack</span>()  <span class="cm"># → Series (fully flat)</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">stack — column index → rows</div>
+      <code>df.<span class="kw">stack</span>()
+df.<span class="kw">stack</span>().<span class="kw">stack</span>()  <span class="cm"># → Series</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">swaplevel</div>
+      <code>df.<span class="kw">swaplevel</span>()        <span class="cm"># swap row index levels</span>
+df.<span class="kw">swaplevel</span>(axis=<span class="nu">1</span>)  <span class="cm"># swap column levels</span></code>
+    </div>
+    <div class="note">💡 unstack moves rows→cols; stack moves cols→rows</div>
+  </div>
+</div>
+
+<!-- MULTIINDEX SELECTION -->
+<div class="card s6">
+  <div class="card-header"><span class="card-dot"></span><h2>Indexing MultiIndex DataFrames</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Single row (loc)</div>
+      <code>df.<span class="kw">loc</span>[(<span class="st">'cse'</span>, <span class="nu">2022</span>)]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Range + step</div>
+      <code>df.<span class="kw">loc</span>[(<span class="st">'cse'</span>,<span class="nu">2019</span>):(<span class="st">'ece'</span>,<span class="nu">2020</span>):<span class="nu">2</span>]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">iloc</div>
+      <code>df.<span class="kw">iloc</span>[<span class="nu">0</span>:<span class="nu">5</span>]
+df.<span class="kw">iloc</span>[[<span class="nu">0</span>,<span class="nu">4</span>], [<span class="nu">1</span>,<span class="nu">2</span>]]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Column selection (multi-level)</div>
+      <code>df[<span class="st">'delhi'</span>]                     <span class="cm"># outer col level</span>
+df[<span class="st">'delhi'</span>][<span class="st">'students'</span>]         <span class="cm"># drill down</span>
+df.<span class="kw">iloc</span>[:, <span class="nu">1</span>:<span class="nu">3</span>]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">sort_index on MultiIndex</div>
+      <code>df.<span class="kw">sort_index</span>(ascending=<span class="kw">False</span>)
+df.<span class="kw">sort_index</span>(ascending=[<span class="kw">False</span>,<span class="kw">True</span>])  <span class="cm"># per level</span>
+df.<span class="kw">sort_index</span>(level=<span class="nu">1</span>)              <span class="cm"># sort only inner</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">transpose</div>
+      <code>df.<span class="kw">transpose</span>()   <span class="cm"># swap rows and columns</span></code>
+    </div>
+  </div>
+</div>
+
+<!-- MELT -->
+<div class="card s6">
+  <div class="card-header"><span class="card-dot"></span><h2>Wide ↔ Long: melt / pivot_table</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">melt — wide to long</div>
+      <code><span class="fn">pd</span>.<span class="kw">DataFrame</span>({<span class="st">'cse'</span>:[<span class="nu">120</span>]}).<span class="kw">melt</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">melt with id_vars (don't melt)</div>
+      <code>df.<span class="kw">melt</span>(id_vars=[<span class="st">'branch'</span>], var_name=<span class="st">'year'</span>, value_name=<span class="st">'students'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Real-world: COVID time series</div>
+      <code>death.<span class="kw">melt</span>(id_vars=[<span class="st">'Province/State'</span>,<span class="st">'Country/Region'</span>,<span class="st">'Lat'</span>,<span class="st">'Long'</span>],
+          var_name=<span class="st">'date'</span>, value_name=<span class="st">'num_deaths'</span>)</code>
+    </div>
+  </div>
+</div>
+
+<!-- PIVOT TABLE -->
+<div class="card s6">
+  <div class="card-header"><span class="card-dot"></span><h2>Pivot Table</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Basic (default agg = mean)</div>
+      <code>df.<span class="kw">pivot_table</span>(index=<span class="st">'sex'</span>, columns=<span class="st">'smoker'</span>, values=<span class="st">'total_bill'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Custom agg function</div>
+      <code>df.<span class="kw">pivot_table</span>(index=<span class="st">'sex'</span>, columns=<span class="st">'smoker'</span>, values=<span class="st">'total_bill'</span>, aggfunc=<span class="st">'count'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Multi-level index & columns</div>
+      <code>df.<span class="kw">pivot_table</span>(index=[<span class="st">'sex'</span>,<span class="st">'smoker'</span>], columns=[<span class="st">'day'</span>,<span class="st">'time'</span>], values=<span class="st">'total_bill'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Different agg per column</div>
+      <code>df.<span class="kw">pivot_table</span>(index=[<span class="st">'sex'</span>,<span class="st">'smoker'</span>], columns=[<span class="st">'day'</span>,<span class="st">'time'</span>],
+    aggfunc={<span class="st">'size'</span>:<span class="st">'mean'</span>,<span class="st">'tip'</span>:<span class="st">'max'</span>,<span class="st">'total_bill'</span>:<span class="st">'sum'</span>})</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Margins (row/col totals)</div>
+      <code>df.<span class="kw">pivot_table</span>(index=<span class="st">'sex'</span>, columns=<span class="st">'smoker'</span>, values=<span class="st">'total_bill'</span>,
+    aggfunc=<span class="st">'sum'</span>, margins=<span class="kw">True</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Equivalent using groupby + unstack</div>
+      <code>df.<span class="kw">groupby</span>([<span class="st">'sex'</span>,<span class="st">'smoker'</span>])[[<span class="st">'total_bill'</span>]].<span class="kw">mean</span>().<span class="kw">unstack</span>()</code>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title"><h3>🔤 Session 22 — Strings & DateTime</h3></div>
+
+<!-- STRING ACCESSOR -->
+<div class="card s1">
+  <div class="card-header"><span class="card-dot"></span><h2>String Accessor (.str)</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Why .str? — vectorized, handles None</div>
+      <code>s = <span class="fn">pd</span>.<span class="kw">Series</span>([<span class="st">'cat'</span>,<span class="st">'mat'</span>,<span class="kw">None</span>,<span class="st">'rat'</span>])
+s.<span class="kw">str</span>.startswith(<span class="st">'c'</span>)  <span class="cm"># [True, False, NaN, False]</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Case methods</div>
+      <code>s.<span class="kw">str</span>.lower()  s.<span class="kw">str</span>.upper()
+s.<span class="kw">str</span>.capitalize()  s.<span class="kw">str</span>.title()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Length & strip</div>
+      <code>s.<span class="kw">str</span>.len()
+s.<span class="kw">str</span>.strip()   s.<span class="kw">str</span>.lstrip()  s.<span class="kw">str</span>.rstrip()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">split + get</div>
+      <code>df[<span class="st">'Name'</span>].<span class="kw">str</span>.split(<span class="st">','</span>).<span class="kw">str</span>.get(<span class="nu">0</span>)     <span class="cm"># last name</span>
+df[<span class="st">'Name'</span>].<span class="kw">str</span>.split(<span class="st">','</span>).<span class="kw">str</span>.get(<span class="nu">1</span>).<span class="kw">str</span>.strip().<span class="kw">str</span>.split(<span class="st">' '</span>, n=<span class="nu">1</span>, expand=<span class="kw">True</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">replace (string / regex)</div>
+      <code>df[<span class="st">'title'</span>].<span class="kw">str</span>.replace(<span class="st">'Ms.'</span>, <span class="st">'Miss.'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Filtering methods</div>
+      <code>s.<span class="kw">str</span>.startswith(<span class="st">'A'</span>)
+s.<span class="kw">str</span>.endswith(<span class="st">'n'</span>)
+s.<span class="kw">str</span>.isdigit()
+s.<span class="kw">str</span>.isalpha()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">contains — regex supported, case-insensitive</div>
+      <code>df[df[<span class="st">'firstname'</span>].<span class="kw">str</span>.contains(<span class="st">'john'</span>, case=<span class="kw">False</span>)]
+df[df[<span class="st">'lastname'</span>].<span class="kw">str</span>.contains(<span class="st">'^[^aeiouAEIOU].+[^aeiouAEIOU]$'</span>)]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Slicing</div>
+      <code>df[<span class="st">'Name'</span>].<span class="kw">str</span>[::<span class="op">-</span><span class="nu">1</span>]   <span class="cm"># reverse each string</span></code>
+    </div>
+  </div>
+</div>
+
+<!-- TIMESTAMP -->
+<div class="card s3">
+  <div class="card-header"><span class="card-dot"></span><h2>Timestamp Object</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Creating Timestamps (many formats)</div>
+      <code><span class="fn">pd</span>.<span class="kw">Timestamp</span>(<span class="st">'2026/6/26'</span>)      <span class="cm"># recommended</span>
+<span class="fn">pd</span>.<span class="kw">Timestamp</span>(<span class="st">'2023-1-5'</span>)
+<span class="fn">pd</span>.<span class="kw">Timestamp</span>(<span class="st">'5th January 2023'</span>)
+<span class="fn">pd</span>.<span class="kw">Timestamp</span>(<span class="st">'5th January 2023 9:21PM'</span>)
+<span class="fn">pd</span>.<span class="kw">Timestamp</span>(<span class="st">'2023'</span>)             <span class="cm"># year only</span>
+<span class="fn">pd</span>.<span class="kw">Timestamp</span>(dt.datetime(<span class="nu">2023</span>,<span class="nu">1</span>,<span class="nu">5</span>,<span class="nu">9</span>,<span class="nu">21</span>,<span class="nu">56</span>))</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Attributes</div>
+      <code>ts.<span class="kw">year</span>   ts.<span class="kw">month</span>  ts.<span class="kw">day</span>
+ts.<span class="kw">hour</span>   ts.<span class="kw">minute</span> ts.<span class="kw">second</span></code>
+    </div>
+    <div class="note">💡 Pandas Timestamp = Python datetime ease + NumPy datetime64 speed</div>
+  </div>
+</div>
+
+<!-- DATETIMEINDEX / DATE_RANGE -->
+<div class="card s3">
+  <div class="card-header"><span class="card-dot"></span><h2>DatetimeIndex & date_range</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Creating DatetimeIndex</div>
+      <code><span class="fn">pd</span>.<span class="kw">DatetimeIndex</span>([<span class="st">'2023/1/1'</span>,<span class="st">'2022/1/1'</span>])
+<span class="fn">pd</span>.<span class="kw">DatetimeIndex</span>([dt.datetime(<span class="nu">2023</span>,<span class="nu">1</span>,<span class="nu">1</span>), dt.datetime(<span class="nu">2022</span>,<span class="nu">1</span>,<span class="nu">1</span>)])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">date_range — freq shortcuts</div>
+      <code><span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, end=<span class="st">'2023/1/31'</span>, freq=<span class="st">'D'</span>)   <span class="cm"># daily</span>
+<span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, end=<span class="st">'2023/1/31'</span>, freq=<span class="st">'2D'</span>)  <span class="cm"># alternate</span>
+<span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, end=<span class="st">'2023/1/31'</span>, freq=<span class="st">'B'</span>)   <span class="cm"># business days</span>
+<span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, end=<span class="st">'2023/1/31'</span>, freq=<span class="st">'W'</span>)   <span class="cm"># weekly Sun</span>
+<span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, end=<span class="st">'2023/1/31'</span>, freq=<span class="st">'W-THU'</span>) <span class="cm"># weekly Thu</span>
+<span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, end=<span class="st">'2023/1/31'</span>, freq=<span class="st">'H'</span>)   <span class="cm"># hourly</span>
+<span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, end=<span class="st">'2023/1/31'</span>, freq=<span class="st">'6H'</span>)  <span class="cm"># 6-hourly</span>
+<span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, end=<span class="st">'2023/1/31'</span>, freq=<span class="st">'M'</span>)   <span class="cm"># month end</span>
+<span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, end=<span class="st">'2023/1/31'</span>, freq=<span class="st">'MS'</span>)  <span class="cm"># month start</span>
+<span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, end=<span class="st">'2023/1/31'</span>, freq=<span class="st">'A'</span>)   <span class="cm"># year end</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Using periods instead of end</div>
+      <code><span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, periods=<span class="nu">25</span>, freq=<span class="st">'D'</span>)
+<span class="fn">pd</span>.date_range(start=<span class="st">'2023/1/5'</span>, periods=<span class="nu">25</span>, freq=<span class="st">'H'</span>)</code>
+    </div>
+  </div>
+</div>
+
+<!-- TO_DATETIME & DT ACCESSOR -->
+<div class="card s3">
+  <div class="card-header"><span class="card-dot"></span><h2>to_datetime & .dt accessor</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Convert Series to datetime</div>
+      <code><span class="fn">pd</span>.to_datetime(s)
+<span class="fn">pd</span>.to_datetime(s, errors=<span class="st">'coerce'</span>)  <span class="cm"># NaT for invalid</span></code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Convert column in DataFrame</div>
+      <code>df[<span class="st">'Date'</span>] = <span class="fn">pd</span>.to_datetime(df[<span class="st">'Date'</span>])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">.dt accessor methods</div>
+      <code>df[<span class="st">'Date'</span>].<span class="kw">dt</span>.year
+df[<span class="st">'Date'</span>].<span class="kw">dt</span>.month
+df[<span class="st">'Date'</span>].<span class="kw">dt</span>.day
+df[<span class="st">'Date'</span>].<span class="kw">dt</span>.day_of_week
+df[<span class="st">'Date'</span>].<span class="kw">dt</span>.month_name()
+df[<span class="st">'Date'</span>].<span class="kw">dt</span>.day_name()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Common datetime workflow</div>
+      <code>df[<span class="st">'day_name'</span>] = df[<span class="st">'Date'</span>].<span class="kw">dt</span>.day_name()
+df.<span class="kw">groupby</span>(<span class="st">'day_name'</span>)[<span class="st">'INR'</span>].<span class="kw">sum</span>().<span class="kw">plot</span>(kind=<span class="st">'bar'</span>)</code>
+    </div>
+    <div class="note">💡 to_datetime().dt.year is faster than .str.split('/').str.get(0)</div>
+  </div>
+</div>
+
+<!-- KEY DIFFERENCES TABLE -->
+<div class="card wide s2">
+  <div class="card-header"><span class="card-dot"></span><h2>Key "Gotchas" & Differences</h2></div>
+  <div class="card-body">
+    <table>
+      <tr><th>Situation</th><th>Correct Approach</th><th>Common Mistake</th></tr>
+      <tr><td>Counting elements</td><td>.count() — excludes NaN</td><td>.size — includes NaN</td></tr>
+      <tr><td>Unique + NaN count</td><td>len(s.unique())</td><td>s.nunique() — excludes NaN</td></tr>
+      <tr><td>Negative indexing</td><td>s[-5:] (slicing OK)</td><td>s[-1] (fails on Series)</td></tr>
+      <tr><td>loc slicing</td><td>Last label is INCLUDED</td><td>iloc last is EXCLUDED</td></tr>
+      <tr><td>Avoid view mutation</td><td>new = s.copy()</td><td>new = s.head() — same object</td></tr>
+      <tr><td>Multiple conditions</td><td>df[(A) & (B)]</td><td>df[A and B] — crashes</td></tr>
+      <tr><td>Fastest date extraction</td><td>pd.to_datetime(s).dt.year</td><td>s.str.split('/').str.get(0)</td></tr>
+      <tr><td>Faster than filtering</td><td>groupby.get_group('X')</td><td>df[df['col']=='X'] — re-scans</td></tr>
+      <tr><td>Wide to long</td><td>df.melt(id_vars=[...])</td><td>manual pivot</td></tr>
+      <tr><td>dropna default</td><td>how='any' — any NaN → drop row</td><td>how='all' — all NaN → drop</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- PLOTTING QUICK REFERENCE -->
+<div class="card s4">
+  <div class="card-header"><span class="card-dot"></span><h2>Quick Plotting Reference</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Line chart (default)</div>
+      <code>s.<span class="kw">plot</span>()
+<span class="fn">plt</span>.plot(df[<span class="st">'Date'</span>], df[<span class="st">'INR'</span>])</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Bar / Pie chart</div>
+      <code>s.<span class="kw">value_counts</span>().<span class="kw">head</span>(<span class="nu">20</span>).<span class="kw">plot</span>(kind=<span class="st">'pie'</span>)
+df.<span class="kw">groupby</span>(<span class="st">'col'</span>)[<span class="st">'val'</span>].<span class="kw">sum</span>().<span class="kw">plot</span>(kind=<span class="st">'bar'</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Pivot table → plot</div>
+      <code>df.<span class="kw">pivot_table</span>(index=<span class="st">'Month'</span>, columns=<span class="st">'Category'</span>,
+    values=<span class="st">'INR'</span>, aggfunc=<span class="st">'sum'</span>, fill_value=<span class="nu">0</span>).<span class="kw">plot</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Toss decision pie (IPL)</div>
+      <code>ipl[<span class="st">'TossDecision'</span>].<span class="kw">value_counts</span>().<span class="kw">plot</span>(kind=<span class="st">'pie'</span>)</code>
+    </div>
+  </div>
+</div>
+
+<!-- IPL REAL-WORLD PATTERNS -->
+<div class="card s5">
+  <div class="card-header"><span class="card-dot"></span><h2>IPL Real-World Patterns</h2></div>
+  <div class="card-body">
+    <div class="entry">
+      <div class="entry-label">Most POTM in finals/qualifiers</div>
+      <code>ipl[<span class="st">'Player_of_Match'</span>][<span class="op">~</span>ipl[<span class="st">'MatchNumber'</span>].<span class="kw">str</span>.isdigit()].<span class="kw">value_counts</span>()</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Matches played per team</div>
+      <code>(ipl[<span class="st">'Team1'</span>].<span class="kw">value_counts</span>() <span class="op">+</span> ipl[<span class="st">'Team2'</span>].<span class="kw">value_counts</span>()).<span class="kw">sort_values</span>(ascending=<span class="kw">False</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Top 10 batsmen by runs</div>
+      <code>ipl.<span class="kw">groupby</span>(<span class="st">'batsman'</span>)[<span class="st">'batsman_runs'</span>].<span class="kw">sum</span>().<span class="kw">sort_values</span>(ascending=<span class="kw">False</span>).<span class="kw">head</span>(<span class="nu">10</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Most sixes (2 ways)</div>
+      <code>ipl[<span class="st">'batsman'</span>][ipl[<span class="st">'batsman_runs'</span>]<span class="op">==</span><span class="nu">6</span>].<span class="kw">value_counts</span>()
+<span class="cm"># or:</span>
+six = ipl[ipl[<span class="st">'batsman_runs'</span>]<span class="op">==</span><span class="nu">6</span>]
+six.<span class="kw">groupby</span>(<span class="st">'batsman'</span>)[<span class="st">'batsman_runs'</span>].<span class="kw">count</span>().<span class="kw">sort_values</span>(ascending=<span class="kw">False</span>).<span class="kw">head</span>(<span class="nu">1</span>)</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Sixes in last 5 overs</div>
+      <code>temp = ipl[((ipl[<span class="st">'batsman_runs'</span>]<span class="op">==</span><span class="nu">6</span>) <span class="op">|</span> (ipl[<span class="st">'batsman_runs'</span>]<span class="op">==</span><span class="nu">4</span>)) <span class="op">&</span> (ipl[<span class="st">'over'</span>] <span class="op">></span> <span class="nu">15</span>)]
+temp.<span class="kw">groupby</span>(<span class="st">'batsman'</span>)[<span class="st">'batsman_runs'</span>].<span class="kw">count</span>().<span class="kw">sort_values</span>(ascending=<span class="kw">False</span>).<span class="kw">index</span>[<span class="nu">0</span>]</code>
+    </div>
+    <div class="entry">
+      <div class="entry-label">Highest score function for any batsman</div>
+      <code><span class="kw">def</span> <span class="fn">highest</span>(batsman):
+    temp = ipl[ipl[<span class="st">'batsman'</span>] <span class="op">==</span> batsman]
+    <span class="kw">return</span> temp.<span class="kw">groupby</span>(<span class="st">'match_id'</span>)[<span class="st">'batsman_runs'</span>].<span class="kw">sum</span>().<span class="kw">sort_values</span>(ascending=<span class="kw">False</span>).<span class="kw">values</span>[<span class="nu">0</span>]</code>
+    </div>
+  </div>
+</div>
+
+</div><!-- end container -->
+
+<div style="text-align:center; padding:20px 0 32px; color:#8b949e; font-size:11px; font-family:'JetBrains Mono',monospace; border-top:1px solid #21262d; margin-top:8px;">
+  Sessions 16–22 · Pandas Cheatsheet · All details from notebooks included
+</div>
+
+</body>
+</html>

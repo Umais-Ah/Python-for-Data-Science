@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matplotlib Cheatsheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #14161a;
+    --panel:     #1b1e25;
+    --panel-2:   #20242c;
+    --border:    #2a2e38;
+    --text:      #e7e5e0;
+    --muted:     #8b92a0;
+    --orange:    #ff7f0e; /* mpl C1 */
+    --blue:      #4fa8e0; /* mpl C0, lightened for dark bg */
+    --green:     #5fb88a; /* mpl C2, for strings */
+    --code-bg:   #0f1115;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- layout ---------- */
+  .shell{
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    min-height:100vh;
+  }
+
+  nav.sidebar{
+    border-right:1px solid var(--border);
+    padding:28px 20px 40px;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+    background:var(--panel);
+  }
+  nav.sidebar::-webkit-scrollbar{ width:6px; }
+  nav.sidebar::-webkit-scrollbar-thumb{ background:var(--border); border-radius:4px; }
+
+  .brand{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    letter-spacing:.02em;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:6px;
+    color:var(--text);
+  }
+  .brand .dot{
+    width:10px; height:10px; border-radius:50%;
+    background:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,127,14,.18);
+    flex-shrink:0;
+  }
+  .brand-sub{
+    color:var(--muted);
+    font-size:.74rem;
+    margin-bottom:28px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+
+  .nav-group{ margin-bottom:4px; }
+  .nav-link{
+    display:block;
+    padding:7px 10px;
+    border-radius:6px;
+    color:var(--muted);
+    text-decoration:none;
+    font-size:.86rem;
+    border-left:2px solid transparent;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .nav-link:hover{ background:var(--panel-2); color:var(--text); }
+  .nav-link.active{
+    color:var(--text);
+    border-left-color:var(--orange);
+    background:var(--panel-2);
+  }
+  .nav-num{ color:var(--blue); font-family:'JetBrains Mono',monospace; font-size:.78rem; margin-right:6px;}
+
+  main{
+    padding:48px 56px 100px;
+    max-width:980px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    padding:38px 40px 34px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:
+      radial-gradient(circle at 85% 20%, rgba(255,127,14,.10), transparent 55%),
+      radial-gradient(circle at 10% 80%, rgba(79,168,224,.10), transparent 55%),
+      var(--panel);
+    margin-bottom:46px;
+    overflow:hidden;
+  }
+  .hero svg.axes-deco{
+    position:absolute;
+    right:-10px; top:-10px;
+    width:260px; height:260px;
+    opacity:.55;
+    pointer-events:none;
+  }
+  .hero .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--orange);
+    font-size:.78rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+  .hero h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:2.3rem;
+    margin:0 0 12px;
+    line-height:1.15;
+    max-width:560px;
+  }
+  .hero p{
+    color:var(--muted);
+    max-width:520px;
+    margin:0;
+    font-size:.97rem;
+  }
+
+  /* ---------- typography ---------- */
+  h2.section-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:1.45rem;
+    margin:0 0 6px;
+    padding-top:6px;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  h2.section-title .idx{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--orange);
+    font-size:1rem;
+  }
+  .section-tags{
+    display:flex;
+    gap:8px;
+    margin:6px 0 18px;
+    flex-wrap:wrap;
+  }
+  .tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.72rem;
+    color:var(--blue);
+    background:rgba(79,168,224,.10);
+    border:1px solid rgba(79,168,224,.25);
+    padding:3px 9px;
+    border-radius:20px;
+    letter-spacing:.02em;
+  }
+  section.block{
+    margin-bottom:56px;
+    padding-top:8px;
+    border-top:1px solid var(--border);
+  }
+  section.block:first-of-type{ border-top:none; }
+
+  p.lead{ color:var(--muted); margin:0 0 18px; max-width:680px; }
+  .note{
+    border-left:3px solid var(--orange);
+    background:rgba(255,127,14,.06);
+    padding:12px 16px;
+    border-radius:0 8px 8px 0;
+    margin:18px 0;
+    font-size:.92rem;
+    color:var(--text);
+  }
+  .note b{ color:var(--orange); }
+
+  h3.sub{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:1.02rem;
+    margin:26px 0 10px;
+    color:var(--text);
+  }
+  h3.sub .step{
+    color:var(--muted);
+    font-family:'JetBrains Mono',monospace;
+    font-size:.85rem;
+    margin-right:8px;
+  }
+
+  /* ---------- code ---------- */
+  pre{
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px 18px;
+    overflow-x:auto;
+    margin:10px 0 18px;
+    position:relative;
+  }
+  code{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.84rem;
+    line-height:1.65;
+    color:var(--text);
+    white-space:pre;
+  }
+  .tok-comment{ color:var(--muted); font-style:italic; }
+  .tok-str{ color:var(--green); }
+  .tok-num{ color:var(--orange); }
+  .tok-call{ color:var(--blue); }
+  .tok-kw{ color:#c792ea; }
+
+  /* ---------- tables ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:14px 0 22px;
+    font-size:.88rem;
+  }
+  th, td{
+    text-align:left;
+    padding:10px 14px;
+    border-bottom:1px solid var(--border);
+  }
+  th{
+    color:var(--muted);
+    font-family:'JetBrains Mono', monospace;
+    font-weight:500;
+    font-size:.76rem;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  td code{
+    background:var(--code-bg);
+    padding:2px 6px;
+    border-radius:5px;
+    font-size:.82rem;
+    border:1px solid var(--border);
+  }
+  tr:hover td{ background:rgba(255,255,255,.015); }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  @media (max-width: 860px){
+    .grid-2{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    border-top:1px solid var(--border);
+    padding-top:24px;
+    color:var(--muted);
+    font-size:.82rem;
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 900px){
+    .shell{ grid-template-columns:1fr; }
+    nav.sidebar{ position:relative; height:auto; }
+    main{ padding:32px 22px 80px; }
+  }
+
+  ::selection{ background:rgba(255,127,14,.3); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <nav class="sidebar" id="sidebar">
+    <div class="brand"><span class="dot"></span>plt.cheatsheet</div>
+    <div class="brand-sub">Matplotlib &amp; Pandas Plotting</div>
+
+    <div class="nav-group">
+      <a class="nav-link" href="#setup"><span class="nav-num">00</span>Setup</a>
+      <a class="nav-link" href="#data-types"><span class="nav-num">·</span>Data Types Guide</a>
+      <a class="nav-link" href="#line"><span class="nav-num">01</span>Line Plot</a>
+      <a class="nav-link" href="#scatter"><span class="nav-num">02</span>Scatter Plot</a>
+      <a class="nav-link" href="#bar"><span class="nav-num">03</span>Bar Chart</a>
+      <a class="nav-link" href="#hist"><span class="nav-num">04</span>Histogram</a>
+      <a class="nav-link" href="#pie"><span class="nav-num">05</span>Pie Chart</a>
+      <a class="nav-link" href="#style"><span class="nav-num">06</span>Styles &amp; Saving</a>
+      <a class="nav-link" href="#annotate"><span class="nav-num">07</span>Figsize &amp; Annotation</a>
+      <a class="nav-link" href="#subplots"><span class="nav-num">08</span>Subplots (OO API)</a>
+      <a class="nav-link" href="#3d"><span class="nav-num">09</span>3D Plots</a>
+      <a class="nav-link" href="#contour"><span class="nav-num">10</span>Contour Plots</a>
+      <a class="nav-link" href="#heatmap"><span class="nav-num">11</span>Heatmap</a>
+      <a class="nav-link" href="#pandas"><span class="nav-num">12</span>Pandas .plot()</a>
+      <a class="nav-link" href="#reference"><span class="nav-num">·</span>Quick Reference</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <div class="hero">
+      <svg class="axes-deco" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <line x1="20" y1="180" x2="190" y2="180" stroke="#8b92a0" stroke-width="1" opacity="0.5"/>
+        <line x1="20" y1="180" x2="20" y2="10" stroke="#8b92a0" stroke-width="1" opacity="0.5"/>
+        <circle cx="40" cy="150" r="4" fill="#ff7f0e"/>
+        <circle cx="70" cy="120" r="5" fill="#4fa8e0"/>
+        <circle cx="95" cy="140" r="3" fill="#ff7f0e"/>
+        <circle cx="120" cy="80" r="6" fill="#4fa8e0"/>
+        <circle cx="150" cy="100" r="4" fill="#ff7f0e"/>
+        <circle cx="170" cy="50" r="5" fill="#4fa8e0"/>
+        <path d="M40 150 L70 120 L95 140 L120 80 L150 100 L170 50" stroke="#ff7f0e" stroke-width="1.2" fill="none" opacity="0.4"/>
+      </svg>
+      <div class="eyebrow">Session 23 &amp; 24 — Reference Notes</div>
+      <h1>Matplotlib Cheatsheet</h1>
+      <p>Every plot type, parameter, and trick from the basics through the advanced session — line, scatter, bar, histogram, pie, 3D, contour, heatmaps, subplots, and Pandas' built‑in <code style="background:var(--code-bg); padding:2px 6px; border-radius:5px; border:1px solid var(--border);">.plot()</code> shortcuts.</p>
+    </div>
+
+    <!-- 00 SETUP -->
+    <section class="block" id="setup">
+      <h2 class="section-title"><span class="idx">00</span>Setup</h2>
+      <p class="lead">The standard import block used throughout both sessions.</p>
+      <pre><code><span class="tok-kw">import</span> numpy <span class="tok-kw">as</span> np
+<span class="tok-kw">import</span> pandas <span class="tok-kw">as</span> pd
+<span class="tok-kw">import</span> matplotlib.pyplot <span class="tok-kw">as</span> plt
+<span class="tok-kw">import</span> seaborn <span class="tok-kw">as</span> sns</code></pre>
+    </section>
+
+    <!-- DATA TYPES -->
+    <section class="block" id="data-types">
+      <h2 class="section-title">Data Types &amp; When to Use What</h2>
+      <p class="lead">Data is broadly either <b>numerical</b> or <b>categorical</b>. The right chart depends on which combination you're analyzing and what question you're asking.</p>
+      <table>
+        <tr><th>Plot</th><th>Analysis type</th><th>Use case</th></tr>
+        <tr><td>Line plot</td><td>Bivariate — numerical vs numerical</td><td>Time series data</td></tr>
+        <tr><td>Scatter plot</td><td>Bivariate — numerical vs numerical</td><td>Finding correlation</td></tr>
+        <tr><td>Bar chart</td><td>Bivariate — categorical vs numerical</td><td>Aggregate analysis of groups</td></tr>
+        <tr><td>Histogram</td><td>Univariate — numerical</td><td>Frequency count</td></tr>
+        <tr><td>Pie chart</td><td>Uni/Bivariate — categorical vs numerical</td><td>Contribution on a standard scale</td></tr>
+      </table>
+    </section>
+
+    <!-- 01 LINE -->
+    <section class="block" id="line">
+      <h2 class="section-title"><span class="idx">01</span>2D Line Plot</h2>
+      <div class="section-tags"><span class="tag">bivariate</span><span class="tag">numerical vs numerical</span><span class="tag">time series</span></div>
+      <p class="lead">A line plot is essentially a scatter plot with the points connected — it's the natural choice when there's an inherent order to the x‑axis, like time.</p>
+
+      <h3 class="sub"><span class="step">a.</span>Plotting a simple function</h3>
+      <pre><code>price = [<span class="tok-num">48000</span>,<span class="tok-num">54000</span>,<span class="tok-num">57000</span>,<span class="tok-num">49000</span>,<span class="tok-num">47000</span>,<span class="tok-num">45000</span>]
+year  = [<span class="tok-num">2015</span>,<span class="tok-num">2016</span>,<span class="tok-num">2017</span>,<span class="tok-num">2018</span>,<span class="tok-num">2019</span>,<span class="tok-num">2020</span>]
+
+plt.plot(year, price)</code></pre>
+
+      <h3 class="sub"><span class="step">b.</span>From a Pandas DataFrame</h3>
+      <pre><code>batsman = pd.read_csv(<span class="tok-str">'/content/sharma-kohli.csv'</span>)
+batsman
+
+plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'V Kohli'</span>])</code></pre>
+
+      <h3 class="sub"><span class="step">c.</span>Plotting multiple lines</h3>
+      <p class="lead">Multiple calls to <code style="background:var(--code-bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)">plt.plot()</code> before <code style="background:var(--code-bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)">plt.show()</code> draw onto the same figure.</p>
+      <pre><code>plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'V Kohli'</span>])
+plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'RG Sharma'</span>])</code></pre>
+
+      <h3 class="sub"><span class="step">d.</span>Title &amp; axis labels</h3>
+      <pre><code>plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'V Kohli'</span>])
+plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'RG Sharma'</span>])
+plt.title(<span class="tok-str">'Rohit Sharma vs Virat Kohli Career Comparision'</span>)
+plt.xlabel(<span class="tok-str">'Season'</span>)
+plt.ylabel(<span class="tok-str">'Runs Scrored'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">e.</span>Colors (hex), line width / style, marker size</h3>
+      <pre><code>plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'V Kohli'</span>], color=<span class="tok-str">'green'</span>)
+plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'RG Sharma'</span>], color=<span class="tok-str">'#F54927'</span>)
+plt.title(<span class="tok-str">'Rohit Sharma vs Virat Kohli Career Comparision'</span>)
+plt.xlabel(<span class="tok-str">'Season'</span>)
+plt.ylabel(<span class="tok-str">'Runs Scrored'</span>)</code></pre>
+
+      <pre><code>plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'V Kohli'</span>],
+         color=<span class="tok-str">'green'</span>, linestyle=<span class="tok-str">'dashed'</span>)
+plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'RG Sharma'</span>],
+         color=<span class="tok-str">'#F54927'</span>, linestyle=<span class="tok-str">'dashdot'</span>)
+
+plt.title(<span class="tok-str">'Rohit Sharma vs Virat Kohli Career Comparision'</span>)
+plt.xlabel(<span class="tok-str">'Season'</span>)
+plt.ylabel(<span class="tok-str">'Runs Scrored'</span>)</code></pre>
+
+      <pre><code>plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'V Kohli'</span>],
+         color=<span class="tok-str">'green'</span>, linestyle=<span class="tok-str">'solid'</span>,
+         linewidth=<span class="tok-num">3</span>, marker=<span class="tok-str">'D'</span>, markersize=<span class="tok-num">10</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">f.</span>Legend &amp; location</h3>
+      <pre><code>plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'V Kohli'</span>],
+         color=<span class="tok-str">'green'</span>, linestyle=<span class="tok-str">'solid'</span>, linewidth=<span class="tok-num">3</span>,
+         marker=<span class="tok-str">'D'</span>, markersize=<span class="tok-num">10</span>, label=<span class="tok-str">'Virat'</span>)
+plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'RG Sharma'</span>],
+         color=<span class="tok-str">'#F54927'</span>, linestyle=<span class="tok-str">'dashdot'</span>, linewidth=<span class="tok-num">2</span>,
+         marker=<span class="tok-str">'o'</span>, label=<span class="tok-str">'Rohit'</span>)
+
+plt.title(<span class="tok-str">'Rohit Sharma vs Virat Kohli Career Comparision'</span>)
+plt.xlabel(<span class="tok-str">'Season'</span>)
+plt.ylabel(<span class="tok-str">'Runs Scrored'</span>)
+
+plt.legend() <span class="tok-comment"># loc='best' by default -> automatically decide</span>
+<span class="tok-comment"># plt.legend(loc='right')      other options: 'best', 'upper left', 'lower right', ...</span></code></pre>
+
+      <h3 class="sub"><span class="step">g.</span>Limiting axes</h3>
+      <p class="lead">Useful when an outlier flattens the rest of the curve.</p>
+      <pre><code>price = [<span class="tok-num">48000</span>,<span class="tok-num">54000</span>,<span class="tok-num">57000</span>,<span class="tok-num">49000</span>,<span class="tok-num">47000</span>,<span class="tok-num">45000</span>,<span class="tok-num">450000000</span>] <span class="tok-comment"># outlier flattens the rest of the curve</span>
+year  = [<span class="tok-num">2015</span>,<span class="tok-num">2016</span>,<span class="tok-num">2017</span>,<span class="tok-num">2018</span>,<span class="tok-num">2019</span>,<span class="tok-num">2020</span>,<span class="tok-num">2021</span>]
+
+plt.plot(year, price)
+<span class="tok-comment"># we can limit x or y</span>
+plt.ylim(<span class="tok-num">0</span>, <span class="tok-num">75000</span>)
+plt.xlim(<span class="tok-num">2017</span>, <span class="tok-num">2019</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">h.</span>Grid &amp; show</h3>
+      <pre><code>plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'V Kohli'</span>],
+         color=<span class="tok-str">'green'</span>, linestyle=<span class="tok-str">'solid'</span>, linewidth=<span class="tok-num">3</span>,
+         marker=<span class="tok-str">'D'</span>, markersize=<span class="tok-num">10</span>, label=<span class="tok-str">'Virat'</span>)
+plt.plot(batsman[<span class="tok-str">'index'</span>], batsman[<span class="tok-str">'RG Sharma'</span>],
+         color=<span class="tok-str">'#F54927'</span>, linestyle=<span class="tok-str">'dashdot'</span>, linewidth=<span class="tok-num">2</span>,
+         marker=<span class="tok-str">'o'</span>, label=<span class="tok-str">'Rohit'</span>)
+plt.title(<span class="tok-str">'Rohit Sharma vs Virat Kohli Career Comparision'</span>)
+
+plt.grid() <span class="tok-comment"># enable grid -> improves readability</span>
+
+plt.show() <span class="tok-comment"># have to call this in other text editors to make the graph visible</span></code></pre>
+    </section>
+
+    <!-- 02 SCATTER -->
+    <section class="block" id="scatter">
+      <h2 class="section-title"><span class="idx">02</span>Scatter Plot</h2>
+      <div class="section-tags"><span class="tag">bivariate</span><span class="tag">numerical vs numerical</span><span class="tag">correlation</span></div>
+      <p class="lead">A 2D line plot is really a special case of a scatter plot, where the dots happen to be joined by a line.</p>
+
+      <h3 class="sub"><span class="step">a.</span>plt.scatter — simple function</h3>
+      <pre><code>x = np.linspace(-<span class="tok-num">10</span>, <span class="tok-num">10</span>, <span class="tok-num">50</span>)
+y = <span class="tok-num">10</span>*x + <span class="tok-num">3</span> + np.random.randint(<span class="tok-num">0</span>, <span class="tok-num">300</span>, <span class="tok-num">50</span>)
+
+plt.scatter(x, y)</code></pre>
+
+      <h3 class="sub"><span class="step">b.</span>plt.scatter on Pandas data</h3>
+      <pre><code>df = pd.read_csv(<span class="tok-str">'batter.csv'</span>)
+df = df.head(<span class="tok-num">50</span>)
+
+plt.scatter(df[<span class="tok-str">'avg'</span>], df[<span class="tok-str">'strike_rate'</span>], color=<span class="tok-str">'red'</span>, marker=<span class="tok-str">'+'</span>)
+plt.title(<span class="tok-str">'Avg and Sr analysis of top 50 batsman'</span>)
+plt.xlabel(<span class="tok-str">'Average'</span>)
+plt.ylabel(<span class="tok-str">'Strike Rate'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">c.</span>Size — bubble plot</h3>
+      <p class="lead">Dot size represents a third variable. This is <b>slower</b> than <code style="background:var(--code-bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)">plt.plot</code>.</p>
+      <pre><code>tips = sns.load_dataset(<span class="tok-str">'tips'</span>)
+
+plt.scatter(tips[<span class="tok-str">'total_bill'</span>], tips[<span class="tok-str">'tip'</span>], s=tips[<span class="tok-str">'size'</span>]*<span class="tok-num">20</span>) <span class="tok-comment"># dot size represents size of party</span>
+<span class="tok-comment"># slower</span></code></pre>
+
+      <h3 class="sub"><span class="step">d.</span>Scatterplot using plt.plot — faster</h3>
+      <pre><code>plt.plot(tips[<span class="tok-str">'total_bill'</span>], tips[<span class="tok-str">'tip'</span>], <span class="tok-str">'o'</span>) <span class="tok-comment"># cannot vary size, and limited color manipulation</span></code></pre>
+
+      <div class="note"><b>plt.plot vs plt.scatter</b> — <code style="background:var(--code-bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)">plot</code> is faster but can't vary marker size or color per point. <code style="background:var(--code-bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)">scatter</code> is more flexible (size, color, alpha per point) but slower to render.</div>
+
+      <h3 class="sub"><span class="step">e.</span>Colored scatterplots (advanced)</h3>
+      <pre><code>iris = pd.read_csv(<span class="tok-str">'iris.csv'</span>)
+iris.Species.unique()
+
+plt.scatter(iris[<span class="tok-str">'SepalLengthCm'</span>], iris[<span class="tok-str">'PetalLengthCm'</span>])
+plt.xlabel(<span class="tok-str">'Sepal Length'</span>)
+plt.xlabel(<span class="tok-str">'Petal Length'</span>)</code></pre>
+
+      <pre><code><span class="tok-comment"># encode the category as a number first</span>
+iris[<span class="tok-str">'Species'</span>] = iris[<span class="tok-str">'Species'</span>].replace({<span class="tok-str">'Iris-setosa'</span>:<span class="tok-num">0</span>, <span class="tok-str">'Iris-versicolor'</span>:<span class="tok-num">1</span>, <span class="tok-str">'Iris-virginica'</span>:<span class="tok-num">2</span>})
+iris.sample(<span class="tok-num">5</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">f.</span>cmap and alpha + colorbar</h3>
+      <pre><code>plt.scatter(iris[<span class="tok-str">'SepalLengthCm'</span>], iris[<span class="tok-str">'PetalLengthCm'</span>],
+            c=iris[<span class="tok-str">'Species'</span>], cmap=<span class="tok-str">'winter'</span>, alpha=<span class="tok-num">0.7</span>)
+plt.xlabel(<span class="tok-str">'Sepal Length'</span>)
+plt.xlabel(<span class="tok-str">'Petal Length'</span>)
+plt.colorbar()</code></pre>
+    </section>
+
+    <!-- 03 BAR -->
+    <section class="block" id="bar">
+      <h2 class="section-title"><span class="idx">03</span>Bar Chart</h2>
+      <div class="section-tags"><span class="tag">bivariate</span><span class="tag">numerical vs categorical</span><span class="tag">aggregate analysis</span></div>
+
+      <h3 class="sub"><span class="step">a.</span>Simple bar chart</h3>
+      <pre><code>children = [<span class="tok-num">10</span>,<span class="tok-num">20</span>,<span class="tok-num">40</span>,<span class="tok-num">10</span>,<span class="tok-num">30</span>]
+colors   = [<span class="tok-str">'read'</span>,<span class="tok-str">'blue'</span>,<span class="tok-str">'green'</span>,<span class="tok-str">'yellow'</span>,<span class="tok-str">'pink'</span>]
+plt.bar(colors, children, color=<span class="tok-str">'cyan'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">b.</span>Horizontal bar chart</h3>
+      <p class="lead">Preferred when the number of categories on the x‑axis grows large.</p>
+      <pre><code>plt.barh(colors, children, color=<span class="tok-str">'cyan'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">c.</span>Color and label, from real data</h3>
+      <pre><code>df = pd.read_csv(<span class="tok-str">'/content/batsman_season_record.csv'</span>)
+df</code></pre>
+      <pre><code>plt.bar(df[<span class="tok-str">'batsman'</span>], df[<span class="tok-str">'2015'</span>], width=<span class="tok-num">0.5</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">d.</span>Multiple bar charts (grouped) &amp; xticks</h3>
+      <p class="lead">Matplotlib has no built‑in "grouped bar" call — offset the x‑positions manually so the bars sit side by side.</p>
+      <pre><code>plt.bar(np.arange(df.shape[0]) - <span class="tok-num">0.2</span>, df[<span class="tok-str">'2015'</span>], width=<span class="tok-num">0.2</span>, color=<span class="tok-str">'cyan'</span>)
+plt.bar(np.arange(df.shape[0]),       df[<span class="tok-str">'2016'</span>], width=<span class="tok-num">0.2</span>)
+plt.bar(np.arange(df.shape[0]) + <span class="tok-num">0.2</span>, df[<span class="tok-str">'2017'</span>], width=<span class="tok-num">0.2</span>, color=<span class="tok-str">'purple'</span>)
+plt.xticks(np.arange(df.shape[0]), df[<span class="tok-str">'batsman'</span>])
+
+plt.show()</code></pre>
+
+      <h3 class="sub"><span class="step">e.</span>A problem — long category names &amp; rotating xticks</h3>
+      <pre><code><span class="tok-comment"># simple bar chart with a problem: long labels collide</span>
+children = [<span class="tok-num">10</span>,<span class="tok-num">20</span>,<span class="tok-num">40</span>,<span class="tok-num">10</span>,<span class="tok-num">30</span>]
+colors = [<span class="tok-str">'read read read read '</span>,<span class="tok-str">'blue blue blue blue'</span>,<span class="tok-str">'green green green green'</span>,
+          <span class="tok-str">'yellow yellow yellow yellow'</span>,<span class="tok-str">'pink pink pink pink'</span>]
+plt.bar(colors, children, color=<span class="tok-str">'cyan'</span>)
+
+plt.xticks(rotation=<span class="tok-str">'vertical'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">f.</span>Stacked bar chart</h3>
+      <p class="lead">Use <code style="background:var(--code-bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)">bottom=</code> to stack each bar series on top of the previous one's value.</p>
+      <pre><code>df
+plt.bar(df[<span class="tok-str">'batsman'</span>], df[<span class="tok-str">'2017'</span>], label=<span class="tok-str">'2017'</span>)
+plt.bar(df[<span class="tok-str">'batsman'</span>], df[<span class="tok-str">'2016'</span>], bottom=df[<span class="tok-str">'2017'</span>], label=<span class="tok-str">'2016'</span>)
+plt.bar(df[<span class="tok-str">'batsman'</span>], df[<span class="tok-str">'2015'</span>], bottom=(df[<span class="tok-str">'2016'</span>] + df[<span class="tok-str">'2017'</span>]), label=<span class="tok-str">'2015'</span>)
+
+plt.legend()
+plt.show()</code></pre>
+    </section>
+
+    <!-- 04 HIST -->
+    <section class="block" id="hist">
+      <h2 class="section-title"><span class="idx">04</span>Histogram</h2>
+      <div class="section-tags"><span class="tag">univariate</span><span class="tag">numerical column</span><span class="tag">frequency count</span></div>
+
+      <h3 class="sub"><span class="step">a.</span>Simple data with custom bin edges</h3>
+      <pre><code>data = [<span class="tok-num">32</span>,<span class="tok-num">45</span>,<span class="tok-num">56</span>,<span class="tok-num">15</span>,<span class="tok-num">27</span>,<span class="tok-num">61</span>]
+
+plt.hist(data, bins=[<span class="tok-num">10</span>,<span class="tok-num">25</span>,<span class="tok-num">40</span>,<span class="tok-num">55</span>,<span class="tok-num">70</span>])</code></pre>
+
+      <h3 class="sub"><span class="step">b.</span>On real data</h3>
+      <pre><code>df = pd.read_csv(<span class="tok-str">'/content/vk.csv'</span>)
+df</code></pre>
+      <pre><code>plt.hist(df[<span class="tok-str">'batsman_runs'</span>], bins=[<span class="tok-num">0</span>,<span class="tok-num">10</span>,<span class="tok-num">20</span>,<span class="tok-num">30</span>,<span class="tok-num">40</span>,<span class="tok-num">50</span>,<span class="tok-num">60</span>,<span class="tok-num">70</span>,<span class="tok-num">80</span>,<span class="tok-num">90</span>,<span class="tok-num">110</span>,<span class="tok-num">120</span>])</code></pre>
+
+      <h3 class="sub"><span class="step">c.</span>Logarithmic scale</h3>
+      <p class="lead">Handy when a few bins dominate and dwarf the rest of the distribution.</p>
+      <pre><code>arr = np.load(<span class="tok-str">'/content/big-array.npy'</span>)
+
+plt.hist(arr, bins=[<span class="tok-num">10</span>,<span class="tok-num">20</span>,<span class="tok-num">30</span>,<span class="tok-num">40</span>,<span class="tok-num">50</span>,<span class="tok-num">60</span>,<span class="tok-num">70</span>], log=<span class="tok-kw">True</span>)
+plt.show()</code></pre>
+    </section>
+
+    <!-- 05 PIE -->
+    <section class="block" id="pie">
+      <h2 class="section-title"><span class="idx">05</span>Pie Chart</h2>
+      <div class="section-tags"><span class="tag">uni/bivariate</span><span class="tag">categorical vs numerical</span><span class="tag">contribution to a whole</span></div>
+
+      <h3 class="sub"><span class="step">a.</span>Simple data</h3>
+      <pre><code>data = [<span class="tok-num">23</span>,<span class="tok-num">45</span>,<span class="tok-num">100</span>,<span class="tok-num">20</span>,<span class="tok-num">49</span>]
+subjects = [<span class="tok-str">'eng'</span>,<span class="tok-str">'science'</span>,<span class="tok-str">'maths'</span>,<span class="tok-str">'sst'</span>,<span class="tok-str">'urdu'</span>]
+plt.pie(data, labels=subjects)
+plt.show()</code></pre>
+
+      <h3 class="sub"><span class="step">b.</span>On a dataset, with percentages</h3>
+      <pre><code>df = pd.read_csv(<span class="tok-str">'/content/gayle-175.csv'</span>)
+df</code></pre>
+      <pre><code>plt.pie(df[<span class="tok-str">'batsman_runs'</span>], labels=df[<span class="tok-str">'batsman'</span>], autopct=<span class="tok-str">'%0.1f%%'</span>)
+plt.show()</code></pre>
+
+      <h3 class="sub"><span class="step">c.</span>Percentage and custom colors</h3>
+      <pre><code>plt.pie(df[<span class="tok-str">'batsman_runs'</span>], labels=df[<span class="tok-str">'batsman'</span>], autopct=<span class="tok-str">'%0.1f%%'</span>,
+        colors=[<span class="tok-str">'blue'</span>,<span class="tok-str">'purple'</span>,<span class="tok-str">'cyan'</span>,<span class="tok-str">'brown'</span>,<span class="tok-str">'pink'</span>,<span class="tok-str">'yellow'</span>])
+plt.show()</code></pre>
+
+      <h3 class="sub"><span class="step">d.</span>Explode &amp; shadow</h3>
+      <pre><code>plt.pie(df[<span class="tok-str">'batsman_runs'</span>], labels=df[<span class="tok-str">'batsman'</span>], autopct=<span class="tok-str">'%0.1f%%'</span>,
+        explode=[<span class="tok-num">0.1</span>,<span class="tok-num">0</span>,<span class="tok-num">0</span>,<span class="tok-num">0</span>,<span class="tok-num">0</span>,<span class="tok-num">0</span>], shadow=<span class="tok-kw">True</span>)
+plt.show()</code></pre>
+    </section>
+
+    <!-- 06 STYLE -->
+    <section class="block" id="style">
+      <h2 class="section-title"><span class="idx">06</span>Changing Styles &amp; Saving Figures</h2>
+
+      <h3 class="sub"><span class="step">a.</span>Listing &amp; applying a built‑in style</h3>
+      <pre><code>plt.style.available</code></pre>
+      <pre><code>plt.style.use(<span class="tok-str">'fivethirtyeight'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">b.</span>Saving a figure to disk</h3>
+      <pre><code>plt.hist(arr, bins=[<span class="tok-num">10</span>,<span class="tok-num">20</span>,<span class="tok-num">30</span>,<span class="tok-num">40</span>,<span class="tok-num">50</span>,<span class="tok-num">60</span>,<span class="tok-num">70</span>], log=<span class="tok-kw">True</span>)
+plt.savefig(<span class="tok-str">'sample.png'</span>)</code></pre>
+    </section>
+
+    <!-- 07 ANNOTATE -->
+    <section class="block" id="annotate">
+      <h2 class="section-title"><span class="idx">07</span>Plot Size &amp; Annotations</h2>
+      <div class="section-tags"><span class="tag">advanced</span></div>
+
+      <h3 class="sub"><span class="step">a.</span>Figure size</h3>
+      <p class="lead">Set the figure size <b>before</b> plotting. Argument order is <code style="background:var(--code-bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)">(width, height)</code> in inches.</p>
+      <pre><code>plt.figure(figsize=(<span class="tok-num">15</span>,<span class="tok-num">7</span>)) <span class="tok-comment"># 15 is width and 7 is height</span>
+
+plt.scatter(iris[<span class="tok-str">'SepalLengthCm'</span>], iris[<span class="tok-str">'PetalLengthCm'</span>], c=iris[<span class="tok-str">'Species'</span>], cmap=<span class="tok-str">'winter'</span>, alpha=<span class="tok-num">0.7</span>)
+plt.xlabel(<span class="tok-str">'Sepal Length'</span>)
+plt.xlabel(<span class="tok-str">'Petal Length'</span>)
+plt.colorbar()</code></pre>
+
+      <h3 class="sub"><span class="step">b.</span>Annotations with plt.text — looping over points</h3>
+      <pre><code>batters = pd.read_csv(<span class="tok-str">'batter.csv'</span>)
+df = batters.head(<span class="tok-num">100</span>).sample(<span class="tok-num">25</span>, random_state=<span class="tok-num">5</span>)
+df</code></pre>
+      <pre><code>plt.figure(figsize=(<span class="tok-num">18</span>,<span class="tok-num">10</span>))
+plt.scatter(df[<span class="tok-str">'avg'</span>], df[<span class="tok-str">'strike_rate'</span>], s=df[<span class="tok-str">'runs'</span>])
+
+<span class="tok-kw">for</span> i <span class="tok-kw">in</span> range(df.shape[<span class="tok-num">0</span>]):
+  plt.text(df[<span class="tok-str">'avg'</span>].values[i], df[<span class="tok-str">'strike_rate'</span>].values[i], df[<span class="tok-str">'batter'</span>].values[i])</code></pre>
+
+      <h3 class="sub"><span class="step">c.</span>Annotations — manual labels with fontdict</h3>
+      <pre><code>x = [<span class="tok-num">1</span>,<span class="tok-num">2</span>,<span class="tok-num">3</span>,<span class="tok-num">4</span>]
+y = [<span class="tok-num">5</span>,<span class="tok-num">6</span>,<span class="tok-num">7</span>,<span class="tok-num">8</span>]
+plt.scatter(x, y)
+plt.text(<span class="tok-num">1</span>, <span class="tok-num">5</span>, <span class="tok-str">'Point 1'</span>)
+plt.text(<span class="tok-num">2</span>, <span class="tok-num">6</span>, <span class="tok-str">'Point 2'</span>)
+plt.text(<span class="tok-num">3</span>, <span class="tok-num">7</span>, <span class="tok-str">'Point 3'</span>)
+plt.text(<span class="tok-num">4</span>, <span class="tok-num">8</span>, <span class="tok-str">'Point 4'</span>, fontdict={<span class="tok-str">'size'</span>:<span class="tok-num">12</span>, <span class="tok-str">'color'</span>:<span class="tok-str">'brown'</span>})</code></pre>
+
+      <h3 class="sub"><span class="step">d.</span>Horizontal &amp; vertical reference lines</h3>
+      <pre><code>plt.figure(figsize=(<span class="tok-num">18</span>,<span class="tok-num">10</span>))
+plt.scatter(df[<span class="tok-str">'avg'</span>], df[<span class="tok-str">'strike_rate'</span>], s=df[<span class="tok-str">'runs'</span>])
+
+plt.axhline(<span class="tok-num">130</span>, color=<span class="tok-str">'red'</span>)
+plt.axhline(<span class="tok-num">140</span>, color=<span class="tok-str">'green'</span>)
+plt.axvline(<span class="tok-num">30</span>, color=<span class="tok-str">'red'</span>)
+
+<span class="tok-kw">for</span> i <span class="tok-kw">in</span> range(df.shape[<span class="tok-num">0</span>]):
+  plt.text(df[<span class="tok-str">'avg'</span>].values[i], df[<span class="tok-str">'strike_rate'</span>].values[i], df[<span class="tok-str">'batter'</span>].values[i])</code></pre>
+    </section>
+
+    <!-- 08 SUBPLOTS -->
+    <section class="block" id="subplots">
+      <h2 class="section-title"><span class="idx">08</span>Subplots</h2>
+      <div class="section-tags"><span class="tag">object-oriented API</span><span class="tag">side-by-side plots</span></div>
+      <p class="lead">There are three common ways to build subplots in Matplotlib — syntax 1 is the basic, implicit way; the rest use the explicit object‑oriented (<code style="background:var(--code-bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)">fig, ax</code>) interface, which is preferred for laying out multiple plots side by side.</p>
+
+      <h3 class="sub"><span class="step">a.</span>Syntax 1 — the basic way</h3>
+      <pre><code>plt.scatter(batters[<span class="tok-str">'avg'</span>], batters[<span class="tok-str">'strike_rate'</span>])</code></pre>
+
+      <h3 class="sub"><span class="step">b.</span>Syntax 2 — fig, ax = plt.subplots()</h3>
+      <p class="lead">This is usually the one used to plot graphs side by side.</p>
+      <pre><code>fig, ax = plt.subplots(figsize=(<span class="tok-num">15</span>,<span class="tok-num">6</span>))
+
+ax.scatter(batters[<span class="tok-str">'avg'</span>], batters[<span class="tok-str">'strike_rate'</span>], color=<span class="tok-str">'red'</span>, marker=<span class="tok-str">'+'</span>)
+<span class="tok-comment"># ax.plot(batters['avg'], batters['strike_rate'])</span>
+
+ax.set_title(<span class="tok-str">'Something'</span>)
+ax.set_xlabel(<span class="tok-str">'Avg'</span>)
+ax.set_ylabel(<span class="tok-str">'Strike Rate'</span>)
+
+fig.show()</code></pre>
+
+      <h3 class="sub"><span class="step">c.</span>Grid of subplots — nrows / ncols, sharex</h3>
+      <pre><code>fig, ax = plt.subplots(nrows=<span class="tok-num">2</span>, ncols=<span class="tok-num">1</span>, figsize=(<span class="tok-num">15</span>,<span class="tok-num">10</span>), sharex=<span class="tok-kw">True</span>)</code></pre>
+      <pre><code>fig <span class="tok-comment"># re-display the figure object</span></code></pre>
+      <pre><code>ax[<span class="tok-num">0</span>].scatter(batters[<span class="tok-str">'avg'</span>], batters[<span class="tok-str">'strike_rate'</span>], color=<span class="tok-str">'red'</span>)
+ax[<span class="tok-num">1</span>].scatter(batters[<span class="tok-str">'avg'</span>], batters[<span class="tok-str">'runs'</span>])
+fig
+
+ax[<span class="tok-num">0</span>].set_title(<span class="tok-str">'Avg vs Strike Rate'</span>)
+ax[<span class="tok-num">0</span>].set_ylabel(<span class="tok-str">'Strike Rate'</span>)
+
+ax[<span class="tok-num">1</span>].set_title(<span class="tok-str">'Avg vs Strike Rate'</span>)
+ax[<span class="tok-num">1</span>].set_ylabel(<span class="tok-str">'Runs'</span>)
+ax[<span class="tok-num">1</span>].set_xlabel(<span class="tok-str">'Avg'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">d.</span>2×2 grid — index with [row, col]</h3>
+      <pre><code>fig, ax = plt.subplots(nrows=<span class="tok-num">2</span>, ncols=<span class="tok-num">2</span>, figsize=(<span class="tok-num">10</span>,<span class="tok-num">10</span>))
+
+ax[<span class="tok-num">0</span>,<span class="tok-num">0</span>].scatter(batters[<span class="tok-str">'avg'</span>], batters[<span class="tok-str">'strike_rate'</span>], color=<span class="tok-str">'red'</span>)
+ax[<span class="tok-num">0</span>,<span class="tok-num">1</span>].scatter(batters[<span class="tok-str">'avg'</span>], batters[<span class="tok-str">'runs'</span>])
+ax[<span class="tok-num">1</span>,<span class="tok-num">0</span>].hist(batters[<span class="tok-str">'avg'</span>])
+ax[<span class="tok-num">1</span>,<span class="tok-num">1</span>].hist(batters[<span class="tok-str">'avg'</span>])
+
+plt.show()</code></pre>
+
+      <h3 class="sub"><span class="step">e.</span>Third way — fig.add_subplot(rows, cols, index)</h3>
+      <pre><code>fig = plt.figure()
+ax1 = fig.add_subplot(<span class="tok-num">2</span>,<span class="tok-num">1</span>,<span class="tok-num">1</span>) <span class="tok-comment"># 2 rows, 1 col, plot #1</span>
+ax1.scatter(batters[<span class="tok-str">'avg'</span>], batters[<span class="tok-str">'strike_rate'</span>], color=<span class="tok-str">'red'</span>)
+
+ax2 = fig.add_subplot(<span class="tok-num">2</span>,<span class="tok-num">1</span>,<span class="tok-num">2</span>) <span class="tok-comment"># 2 rows, 1 col, plot #2</span>
+ax2.hist(batters[<span class="tok-str">'avg'</span>])</code></pre>
+    </section>
+
+    <!-- 09 3D -->
+    <section class="block" id="3d">
+      <h2 class="section-title"><span class="idx">09</span>3D Plots</h2>
+
+      <h3 class="sub"><span class="step">a.</span>3D scatter plot</h3>
+      <pre><code>batters
+
+fig = plt.figure()
+ax = plt.subplot(projection=<span class="tok-str">'3d'</span>)
+ax.scatter3D(batters[<span class="tok-str">'runs'</span>], batters[<span class="tok-str">'avg'</span>], batters[<span class="tok-str">'strike_rate'</span>])
+
+ax.set_title(<span class="tok-str">'IPL batsman analysis'</span>)
+ax.set_xlabel(<span class="tok-str">'Runs'</span>)
+ax.set_ylabel(<span class="tok-str">'Avg'</span>)
+ax.set_zlabel(<span class="tok-str">'SR'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">b.</span>3D line plot</h3>
+      <pre><code>x = [<span class="tok-num">0</span>,<span class="tok-num">1</span>,<span class="tok-num">5</span>,<span class="tok-num">25</span>]
+y = [<span class="tok-num">0</span>,<span class="tok-num">10</span>,<span class="tok-num">13</span>,<span class="tok-num">9</span>]
+z = [<span class="tok-num">0</span>,<span class="tok-num">13</span>,<span class="tok-num">20</span>,<span class="tok-num">9</span>]
+fig = plt.figure()
+ax = plt.subplot(projection=<span class="tok-str">'3d'</span>)
+ax.scatter3D(x, y, z, s=[<span class="tok-num">100</span>,<span class="tok-num">100</span>,<span class="tok-num">100</span>,<span class="tok-num">100</span>])
+ax.plot(x, y, z, color=<span class="tok-str">'red'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">c.</span>3D surface plot</h3>
+      <p class="lead">Build a 2D grid of x/y coordinates with <code style="background:var(--code-bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)">np.meshgrid</code> before computing z over that grid.</p>
+      <pre><code>x = np.linspace(-<span class="tok-num">10</span>, <span class="tok-num">10</span>, <span class="tok-num">100</span>)
+y = np.linspace(-<span class="tok-num">10</span>, <span class="tok-num">10</span>, <span class="tok-num">100</span>)</code></pre>
+      <pre><code>xx, yy = np.meshgrid(x, y)
+xx.shape</code></pre>
+      <pre><code>z = xx**<span class="tok-num">2</span> + yy**<span class="tok-num">2</span></code></pre>
+      <pre><code>fig = plt.figure(figsize=(<span class="tok-num">12</span>,<span class="tok-num">8</span>))
+ax = plt.subplot(projection=<span class="tok-str">'3d'</span>)
+p = ax.plot_surface(xx, yy, z, cmap=<span class="tok-str">'viridis'</span>)
+fig.colorbar(p)</code></pre>
+
+      <pre><code>z = np.sin(xx) + np.cos(yy)
+
+fig = plt.figure(figsize=(<span class="tok-num">12</span>,<span class="tok-num">8</span>))
+ax = plt.subplot(projection=<span class="tok-str">'3d'</span>)
+p = ax.plot_surface(xx, yy, z, cmap=<span class="tok-str">'viridis'</span>)
+fig.colorbar(p)</code></pre>
+    </section>
+
+    <!-- 10 CONTOUR -->
+    <section class="block" id="contour">
+      <h2 class="section-title"><span class="idx">10</span>Contour Plots</h2>
+      <p class="lead">A contour plot effectively makes a 3D surface 2D — it flattens the z‑dimension into colored/lined bands viewed from above.</p>
+
+      <h3 class="sub"><span class="step">a.</span>contour() — line contours</h3>
+      <pre><code>z = xx**<span class="tok-num">2</span> + yy**<span class="tok-num">2</span>
+fig = plt.figure(figsize=(<span class="tok-num">12</span>,<span class="tok-num">8</span>))
+ax = plt.subplot()
+p = ax.contour(xx, yy, z, cmap=<span class="tok-str">'viridis'</span>)
+fig.colorbar(p)</code></pre>
+
+      <h3 class="sub"><span class="step">b.</span>contourf() — filled contours</h3>
+      <pre><code>z = xx**<span class="tok-num">2</span> + yy**<span class="tok-num">2</span>
+fig = plt.figure(figsize=(<span class="tok-num">12</span>,<span class="tok-num">8</span>))
+ax = plt.subplot()
+p = ax.contourf(xx, yy, z, cmap=<span class="tok-str">'viridis'</span>)
+fig.colorbar(p)</code></pre>
+
+      <pre><code>z = np.sin(xx) + np.cos(yy)
+
+fig = plt.figure(figsize=(<span class="tok-num">12</span>,<span class="tok-num">8</span>))
+ax = plt.subplot()
+p = ax.contourf(xx, yy, z, cmap=<span class="tok-str">'viridis'</span>)
+fig.colorbar(p)</code></pre>
+    </section>
+
+    <!-- 11 HEATMAP -->
+    <section class="block" id="heatmap">
+      <h2 class="section-title"><span class="idx">11</span>Heatmap</h2>
+      <p class="lead">Built with <code style="background:var(--code-bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)">plt.imshow()</code> over a pivoted grid of values — a common pattern for visualizing a 2D frequency/aggregate table.</p>
+      <pre><code>delivery = pd.read_csv(<span class="tok-str">'/content/IPL_Ball_by_Ball_2008_2022.csv'</span>)
+delivery.head()</code></pre>
+      <pre><code>temp_df = delivery[(delivery[<span class="tok-str">'ballnumber'</span>].isin([<span class="tok-num">1</span>,<span class="tok-num">2</span>,<span class="tok-num">3</span>,<span class="tok-num">4</span>,<span class="tok-num">5</span>,<span class="tok-num">6</span>])) & (delivery[<span class="tok-str">'batsman_run'</span>]==<span class="tok-num">6</span>)]</code></pre>
+      <pre><code>grid = temp_df.pivot_table(index=<span class="tok-str">'overs'</span>, columns=<span class="tok-str">'ballnumber'</span>, values=<span class="tok-str">'batsman_run'</span>, aggfunc=<span class="tok-str">'count'</span>)</code></pre>
+      <pre><code>plt.figure(figsize=(<span class="tok-num">20</span>,<span class="tok-num">10</span>))
+plt.imshow(grid)
+plt.colorbar()
+plt.yticks(delivery[<span class="tok-str">'overs'</span>].unique(), list(range(<span class="tok-num">1</span>,<span class="tok-num">21</span>)))
+plt.xticks(np.arange(<span class="tok-num">0</span>,<span class="tok-num">6</span>), list(range(<span class="tok-num">1</span>,<span class="tok-num">7</span>)))</code></pre>
+    </section>
+
+    <!-- 12 PANDAS -->
+    <section class="block" id="pandas">
+      <h2 class="section-title"><span class="idx">12</span>Pandas .plot()</h2>
+      <p class="lead">Pandas wraps Matplotlib under the hood — call <code style="background:var(--code-bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)">.plot(kind=...)</code> directly on a Series or DataFrame for a quicker, more declarative API.</p>
+
+      <h3 class="sub"><span class="step">a.</span>On a Series</h3>
+      <pre><code>s = pd.Series([<span class="tok-num">1</span>,<span class="tok-num">2</span>,<span class="tok-num">3</span>,<span class="tok-num">4</span>,<span class="tok-num">5</span>,<span class="tok-num">6</span>,<span class="tok-num">7</span>])
+<span class="tok-comment"># s.plot(kind='line')</span>
+<span class="tok-comment"># s.plot(kind='hist')</span>
+s.plot(kind=<span class="tok-str">'pie'</span>)</code></pre>
+      <p class="lead">It can also be used on a DataFrame.</p>
+      <pre><code>tips = sns.load_dataset(<span class="tok-str">'tips'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">b.</span>Scatter plot — labels, marker, figsize, color, cmap</h3>
+      <pre><code>tips[<span class="tok-str">'size'</span>] = tips.size + <span class="tok-num">10</span></code></pre>
+      <pre><code>tips.plot(kind=<span class="tok-str">'scatter'</span>, x=<span class="tok-str">'total_bill'</span>, y=<span class="tok-str">'tip'</span>, title=<span class="tok-str">'Cost Analysis'</span>,
+          marker=<span class="tok-str">'+'</span>, s=<span class="tok-str">'size'</span>, figsize=(<span class="tok-num">10</span>,<span class="tok-num">6</span>), c=<span class="tok-str">'sex'</span>, cmap=<span class="tok-str">'viridis'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">c.</span>2D / line plot</h3>
+      <pre><code>stocks = pd.read_csv(<span class="tok-str">'https://raw.githubusercontent.com/m-mehdi/pandas_tutorials/main/weekly_stocks.csv'</span>)
+stocks.head()</code></pre>
+      <pre><code><span class="tok-comment"># line plot</span>
+stocks[<span class="tok-str">'MSFT'</span>].plot(kind=<span class="tok-str">'line'</span>)</code></pre>
+      <pre><code>stocks.plot(kind=<span class="tok-str">'line'</span>, x=<span class="tok-str">'Date'</span>)</code></pre>
+      <pre><code>stocks[[<span class="tok-str">'Date'</span>,<span class="tok-str">'MSFT'</span>,<span class="tok-str">'FB'</span>]].plot(kind=<span class="tok-str">'line'</span>, x=<span class="tok-str">'Date'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">d.</span>Bar chart — single, horizontal, multiple</h3>
+      <pre><code>temp = pd.read_csv(<span class="tok-str">'/content/batsman_season_record.csv'</span>)
+temp.head()</code></pre>
+      <pre><code><span class="tok-comment"># temp.plot(kind='bar')</span>
+temp[<span class="tok-str">'2015'</span>].plot(kind=<span class="tok-str">'bar'</span>)</code></pre>
+      <pre><code>tips.groupby(<span class="tok-str">'sex'</span>)[<span class="tok-str">'total_bill'</span>].mean().plot(kind=<span class="tok-str">'bar'</span>)</code></pre>
+      <pre><code>temp.plot(kind=<span class="tok-str">'bar'</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">e.</span>Stacked bar chart</h3>
+      <pre><code>temp.plot(kind=<span class="tok-str">'bar'</span>, stacked=<span class="tok-kw">True</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">f.</span>Histogram</h3>
+      <pre><code><span class="tok-comment"># stocks.plot(kind='hist')</span>
+stocks[[<span class="tok-str">'MSFT'</span>,<span class="tok-str">'FB'</span>]].plot(kind=<span class="tok-str">'hist'</span>, bins=<span class="tok-num">40</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">g.</span>Pie — single and multiple</h3>
+      <pre><code>df = pd.DataFrame(
+    {
+        <span class="tok-str">'batsman'</span>:[<span class="tok-str">'Dhawan'</span>,<span class="tok-str">'Rohit'</span>,<span class="tok-str">'Kohli'</span>,<span class="tok-str">'SKY'</span>,<span class="tok-str">'Pandya'</span>,<span class="tok-str">'Pant'</span>],
+        <span class="tok-str">'match1'</span>:[<span class="tok-num">120</span>,<span class="tok-num">90</span>,<span class="tok-num">35</span>,<span class="tok-num">45</span>,<span class="tok-num">12</span>,<span class="tok-num">10</span>],
+        <span class="tok-str">'match2'</span>:[<span class="tok-num">0</span>,<span class="tok-num">1</span>,<span class="tok-num">123</span>,<span class="tok-num">130</span>,<span class="tok-num">34</span>,<span class="tok-num">45</span>],
+        <span class="tok-str">'match3'</span>:[<span class="tok-num">50</span>,<span class="tok-num">24</span>,<span class="tok-num">145</span>,<span class="tok-num">45</span>,<span class="tok-num">10</span>,<span class="tok-num">90</span>]
+    }
+)
+
+df.head()
+df[<span class="tok-str">'match1'</span>].plot(kind=<span class="tok-str">'pie'</span>, labels=df[<span class="tok-str">'batsman'</span>].values, autopct=<span class="tok-str">'%0.1f%%'</span>)</code></pre>
+
+      <pre><code><span class="tok-comment"># multiple pie charts — one per column</span>
+df[[<span class="tok-str">'match1'</span>,<span class="tok-str">'match2'</span>,<span class="tok-str">'match3'</span>]].plot(kind=<span class="tok-str">'pie'</span>, subplots=<span class="tok-kw">True</span>, figsize=(<span class="tok-num">15</span>,<span class="tok-num">8</span>))</code></pre>
+
+      <h3 class="sub"><span class="step">h.</span>Multiple separate graphs together</h3>
+      <pre><code>stocks.plot(kind=<span class="tok-str">'line'</span>, subplots=<span class="tok-kw">True</span>)</code></pre>
+
+      <h3 class="sub"><span class="step">i.</span>On MultiIndex DataFrames (pivot tables)</h3>
+      <pre><code>tips.pivot_table(index=[<span class="tok-str">'day'</span>,<span class="tok-str">'time'</span>], columns=[<span class="tok-str">'sex'</span>,<span class="tok-str">'smoker'</span>],
+                  values=<span class="tok-str">'total_bill'</span>, aggfunc=<span class="tok-str">'mean'</span>).plot(kind=<span class="tok-str">'line'</span>)</code></pre>
+      <pre><code>tips.pivot_table(index=[<span class="tok-str">'day'</span>,<span class="tok-str">'time'</span>], columns=[<span class="tok-str">'sex'</span>,<span class="tok-str">'smoker'</span>],
+                  values=<span class="tok-str">'total_bill'</span>, aggfunc=<span class="tok-str">'mean'</span>).plot(kind=<span class="tok-str">'bar'</span>)</code></pre>
+      <pre><code>tips.pivot_table(index=[<span class="tok-str">'day'</span>,<span class="tok-str">'time'</span>], columns=[<span class="tok-str">'sex'</span>,<span class="tok-str">'smoker'</span>],
+                  values=<span class="tok-str">'total_bill'</span>, aggfunc=<span class="tok-str">'mean'</span>).plot(kind=<span class="tok-str">'pie'</span>, subplots=<span class="tok-kw">True</span>, figsize=(<span class="tok-num">20</span>,<span class="tok-num">10</span>))</code></pre>
+    </section>
+
+    <!-- QUICK REFERENCE -->
+    <section class="block" id="reference">
+      <h2 class="section-title">Quick Reference — Common Parameters</h2>
+      <div class="grid-2">
+        <table>
+          <tr><th>Param</th><th>Used in</th><th>Meaning</th></tr>
+          <tr><td><code>color</code></td><td>plot, bar, scatter</td><td>Named color or hex string</td></tr>
+          <tr><td><code>linestyle</code></td><td>plot</td><td><code>'solid'</code>, <code>'dashed'</code>, <code>'dotted'</code>, <code>'dashdot'</code></td></tr>
+          <tr><td><code>linewidth</code></td><td>plot</td><td>Line thickness</td></tr>
+          <tr><td><code>marker</code></td><td>plot, scatter</td><td><code>'o'</code>, <code>'D'</code>, <code>'+'</code>, etc.</td></tr>
+          <tr><td><code>markersize</code> / <code>s</code></td><td>plot / scatter</td><td>Marker size (<code>s</code> also accepts an array/Series for variable size)</td></tr>
+          <tr><td><code>label</code></td><td>plot, bar</td><td>Name shown in <code>plt.legend()</code></td></tr>
+        </table>
+        <table>
+          <tr><th>Param</th><th>Used in</th><th>Meaning</th></tr>
+          <tr><td><code>c</code> / <code>cmap</code></td><td>scatter</td><td>Color-map a numeric column; pair with <code>plt.colorbar()</code></td></tr>
+          <tr><td><code>alpha</code></td><td>scatter</td><td>Transparency (0–1)</td></tr>
+          <tr><td><code>bins</code></td><td>hist</td><td>Bin edges or bin count</td></tr>
+          <tr><td><code>log</code></td><td>hist</td><td>Log-scale the y-axis</td></tr>
+          <tr><td><code>autopct</code></td><td>pie</td><td>Format string for % labels, e.g. <code>'%0.1f%%'</code></td></tr>
+          <tr><td><code>explode</code></td><td>pie</td><td>Offsets to "pop out" slices</td></tr>
+        </table>
+        <table>
+          <tr><th>Param</th><th>Used in</th><th>Meaning</th></tr>
+          <tr><td><code>shadow</code></td><td>pie</td><td>Adds a drop shadow</td></tr>
+          <tr><td><code>bottom</code></td><td>bar</td><td>Stacks bars on top of previous values</td></tr>
+          <tr><td><code>figsize</code></td><td>figure / subplots</td><td><code>(width, height)</code> in inches</td></tr>
+          <tr><td><code>sharex</code> / <code>sharey</code></td><td>subplots</td><td>Share an axis scale across subplots</td></tr>
+          <tr><td><code>projection='3d'</code></td><td>subplot</td><td>Enables 3D axes</td></tr>
+          <tr><td><code>stacked</code></td><td>pandas .plot(kind='bar')</td><td>Stack bar segments</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <footer>session_23_matplotlib.ipynb · session_24_advanced_matplotlib.ipynb — compiled reference</footer>
+
+  </main>
+</div>
+
+<script>
+  // highlight active sidebar link on scroll
+  const links = document.querySelectorAll('.nav-link');
+  const sections = document.querySelectorAll('section.block, div.hero[id], section[id]');
+  const allTargets = document.querySelectorAll('main [id]');
+
+  function onScroll(){
+    let current = null;
+    allTargets.forEach(sec => {
+      const rect = sec.getBoundingClientRect();
+      if(rect.top <= 140){ current = sec.id; }
+    });
+    links.forEach(l => {
+      l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+    });
+  }
+  document.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+</script>
+
+</body>
+</html>

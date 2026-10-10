@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Seaborn Cheat Sheet</title>
+<style>
+  :root{
+    --bg:#0f172a;
+    --panel:#111827;
+    --card:#1e293b;
+    --text:#e5e7eb;
+    --muted:#9ca3af;
+    --accent:#38bdf8;
+    --accent2:#a78bfa;
+    --code-bg:#0b1220;
+    --border:#334155;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(180deg,#0b1120,#0f172a 30%);
+    color:var(--text);
+    line-height:1.55;
+  }
+  header{
+    padding:40px 24px 20px;
+    text-align:center;
+    background:radial-gradient(circle at top, rgba(56,189,248,0.15), transparent 60%);
+  }
+  header h1{
+    font-size:2.2rem;
+    margin:0 0 6px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  header p{
+    color:var(--muted);
+    margin:4px 0;
+  }
+  nav{
+    max-width:1100px;
+    margin:0 auto 30px;
+    padding:0 24px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+  }
+  nav a{
+    color:var(--text);
+    background:var(--card);
+    border:1px solid var(--border);
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:0.85rem;
+    text-decoration:none;
+    transition:all .15s ease;
+  }
+  nav a:hover{
+    background:var(--accent);
+    color:#0b1120;
+    border-color:var(--accent);
+  }
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 24px 60px;
+  }
+  section.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:24px 28px;
+    margin-bottom:22px;
+    box-shadow:0 4px 18px rgba(0,0,0,0.25);
+  }
+  h2{
+    color:var(--accent);
+    border-bottom:1px solid var(--border);
+    padding-bottom:8px;
+    margin-top:0;
+    font-size:1.4rem;
+  }
+  h3{
+    color:var(--accent2);
+    margin-top:26px;
+    font-size:1.1rem;
+  }
+  h4{
+    color:var(--text);
+    margin-bottom:4px;
+  }
+  p{color:var(--text);}
+  ul{padding-left:22px;}
+  li{margin-bottom:4px;}
+  .note{
+    background:rgba(167,139,250,0.08);
+    border-left:3px solid var(--accent2);
+    padding:10px 14px;
+    border-radius:6px;
+    color:var(--muted);
+    font-size:0.92rem;
+    margin:10px 0;
+  }
+  code{
+    font-family:"Fira Code","Cascadia Code",Consolas,monospace;
+    background:var(--code-bg);
+    padding:2px 6px;
+    border-radius:4px;
+    color:#7dd3fc;
+    font-size:0.85em;
+  }
+  pre{
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+    overflow-x:auto;
+    margin:10px 0 18px;
+  }
+  pre code{
+    background:none;
+    padding:0;
+    color:#e2e8f0;
+    display:block;
+    white-space:pre;
+  }
+  .kw{color:#c084fc;}
+  .fn{color:#38bdf8;}
+  .str{color:#a3e635;}
+  .com{color:#64748b;font-style:italic;}
+  .num{color:#fb923c;}
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:14px 0;
+    font-size:0.92rem;
+  }
+  th,td{
+    border:1px solid var(--border);
+    padding:8px 10px;
+    text-align:left;
+  }
+  th{
+    background:#0b1220;
+    color:var(--accent);
+  }
+  tr:nth-child(even){background:rgba(255,255,255,0.02);}
+
+  .tag-figure{
+    display:inline-block;
+    background:rgba(56,189,248,0.15);
+    color:var(--accent);
+    padding:1px 8px;
+    border-radius:12px;
+    font-size:0.75rem;
+    margin-left:6px;
+  }
+  .tag-axes{
+    display:inline-block;
+    background:rgba(167,139,250,0.15);
+    color:var(--accent2);
+    padding:1px 8px;
+    border-radius:12px;
+    font-size:0.75rem;
+    margin-left:6px;
+  }
+  footer{
+    text-align:center;
+    color:var(--muted);
+    padding:30px;
+    font-size:0.85rem;
+    border-top:1px solid var(--border);
+  }
+  ::-webkit-scrollbar{height:8px;width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎨 Seaborn Cheat Sheet</h1>
+  <p>Session 25 &amp; 26 — Complete reference with every code cell &amp; note</p>
+</header>
+
+<nav>
+  <a href="#why">Why Seaborn</a>
+  <a href="#roadmap">Roadmap</a>
+  <a href="#relational">Relational</a>
+  <a href="#distribution">Distribution</a>
+  <a href="#matrix">Matrix</a>
+  <a href="#categorical">Categorical</a>
+  <a href="#regression">Regression</a>
+  <a href="#facetgrid">FacetGrid</a>
+  <a href="#pairgrid">PairGrid/Pairplot</a>
+  <a href="#jointgrid">JointGrid/Jointplot</a>
+  <a href="#utility">Utility</a>
+  <a href="#quickref">Quick Reference</a>
+</nav>
+
+<main>
+
+<section class="card" id="why">
+  <h2>Why Seaborn?</h2>
+  <ul>
+    <li>Provides a layer of abstraction, hence simpler to use</li>
+    <li>Better aesthetics</li>
+    <li>More graphs included</li>
+  </ul>
+</section>
+
+<section class="card" id="roadmap">
+  <h2>Seaborn Roadmap</h2>
+  <h3>Types of Functions</h3>
+  <ul>
+    <li>Figure Level</li>
+    <li>Axis Level</li>
+  </ul>
+  <h3>Main Classification</h3>
+  <ul>
+    <li>Relational Plot</li>
+    <li>Distribution Plot</li>
+    <li>Categorical Plot</li>
+    <li>Regression Plot</li>
+    <li>Matrix Plot</li>
+    <li>Multiplots</li>
+  </ul>
+  <p>Reference: <code>https://seaborn.pydata.org/api.html</code></p>
+
+  <h3>Imports &amp; Sample Data</h3>
+<pre><code><span class="kw">import</span> seaborn <span class="kw">as</span> sns
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> plotly.express <span class="kw">as</span> px
+
+tips = sns.<span class="fn">load_dataset</span>(<span class="str">'tips'</span>)
+iris = sns.<span class="fn">load_dataset</span>(<span class="str">'iris'</span>)
+titanic = sns.<span class="fn">load_dataset</span>(<span class="str">'titanic'</span>)
+gap = px.data.<span class="fn">gapminder</span>()</code></pre>
+</section>
+
+<section class="card" id="relational">
+  <h2>1. Relational Plot <span class="tag-figure">figure: relplot</span></h2>
+  <p>Used to see the statistical relation between 2 or more variables (<strong>Bivariate Analysis</strong>).</p>
+  <ul>
+    <li><code>scatterplot</code> <span class="tag-axes">axes</span></li>
+    <li><code>lineplot</code> <span class="tag-axes">axes</span></li>
+  </ul>
+
+  <h3>Scatter Plot</h3>
+<pre><code><span class="com"># scatter plot -> axes level function</span>
+sns.<span class="fn">scatterplot</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>, hue=<span class="str">'sex'</span>, style=<span class="str">'time'</span>, size=<span class="str">'size'</span>)
+
+<span class="com"># relplot -> figure level -> square shape</span>
+sns.<span class="fn">relplot</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>, kind=<span class="str">'scatter'</span>, hue=<span class="str">'sex'</span>, style=<span class="str">'time'</span>, size=<span class="str">'size'</span>)</code></pre>
+  <div class="note"><code>hue</code>, <code>style</code>, <code>size</code> are semantics that can be added.</div>
+
+  <h3>Line Plot</h3>
+  <p>Preferred when x-axis has time.</p>
+<pre><code>gap = px.data.<span class="fn">gapminder</span>()
+temp = gap[gap[<span class="str">'country'</span>] == <span class="str">'Pakistan'</span>]
+
+<span class="com"># axes level function</span>
+sns.<span class="fn">lineplot</span>(data=temp, x=<span class="str">'year'</span>, y=<span class="str">'lifeExp'</span>)
+
+<span class="com"># using relplot</span>
+sns.<span class="fn">relplot</span>(data=temp, x=<span class="str">'year'</span>, y=<span class="str">'lifeExp'</span>, kind=<span class="str">'line'</span>)
+
+<span class="com"># hue -> style</span>
+temp = gap[gap[<span class="str">'country'</span>].isin([<span class="str">'India'</span>, <span class="str">'Pakistan'</span>, <span class="str">'China'</span>])]
+sns.<span class="fn">lineplot</span>(data=temp, x=<span class="str">'year'</span>, y=<span class="str">'lifeExp'</span>, hue=<span class="str">'country'</span>)
+
+<span class="com"># hue + style + size together</span>
+temp = gap[gap[<span class="str">'country'</span>].isin([<span class="str">'India'</span>, <span class="str">'Brazil'</span>, <span class="str">'Germany'</span>])]
+sns.<span class="fn">lineplot</span>(data=temp, x=<span class="str">'year'</span>, y=<span class="str">'lifeExp'</span>, hue=<span class="str">'country'</span>, style=<span class="str">'continent'</span>, size=<span class="str">'continent'</span>)</code></pre>
+
+  <h3>Facet Plot (col / row)</h3>
+  <p>Figure level function — works with <code>relplot</code> only (<strong>not</strong> with <code>scatterplot</code>/<code>lineplot</code>, since those are axes-level and faceting is a figure-level manipulation).</p>
+<pre><code>sns.<span class="fn">relplot</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>, col=<span class="str">'smoker'</span>, row=<span class="str">'sex'</span>)
+sns.<span class="fn">relplot</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>, col=<span class="str">'sex'</span>, row=<span class="str">'day'</span>)
+
+<span class="com"># col_wrap</span>
+sns.<span class="fn">relplot</span>(data=gap, x=<span class="str">'lifeExp'</span>, y=<span class="str">'gdpPercap'</span>, kind=<span class="str">'scatter'</span>, col=<span class="str">'year'</span>, col_wrap=<span class="num">3</span>)</code></pre>
+</section>
+
+<section class="card" id="distribution">
+  <h2>2. Distribution Plots <span class="tag-figure">figure: displot</span></h2>
+  <p>Used for <strong>univariate analysis</strong>:</p>
+  <ul>
+    <li>Used to find out the distribution</li>
+    <li>Range of the observation</li>
+    <li>Central Tendency</li>
+    <li>Is the data bimodal?</li>
+    <li>Are there outliers?</li>
+  </ul>
+  <p>Axes level functions: <code>histplot</code> → <code>kdeplot</code> → <code>rugplot</code></p>
+
+  <h3>Histogram (univariate)</h3>
+<pre><code><span class="com"># plotting univariate histogram (axes level)</span>
+sns.<span class="fn">histplot</span>(data=tips, x=<span class="str">'total_bill'</span>)
+
+<span class="com"># figure level</span>
+sns.<span class="fn">displot</span>(data=tips, x=<span class="str">'total_bill'</span>, kind=<span class="str">'hist'</span>)
+
+<span class="com"># bins parameter</span>
+sns.<span class="fn">histplot</span>(data=tips, x=<span class="str">'total_bill'</span>, bins=<span class="num">20</span>)</code></pre>
+
+  <p>It's also possible to visualize the distribution of a categorical variable using the logic of a histogram. Discrete bins are automatically set for categorical variables (acts like a <strong>countplot</strong>):</p>
+<pre><code>sns.<span class="fn">displot</span>(data=tips, x=<span class="str">'day'</span>, kind=<span class="str">'hist'</span>)</code></pre>
+
+  <h4>hue parameter</h4>
+<pre><code>sns.<span class="fn">displot</span>(data=tips, x=<span class="str">'tip'</span>, kind=<span class="str">'hist'</span>, hue=<span class="str">'sex'</span>)
+
+<span class="com"># element -> step</span>
+sns.<span class="fn">displot</span>(data=tips, x=<span class="str">'tip'</span>, kind=<span class="str">'hist'</span>, hue=<span class="str">'sex'</span>, element=<span class="str">'step'</span>)
+
+titanic = sns.<span class="fn">load_dataset</span>(<span class="str">'titanic'</span>)
+sns.<span class="fn">displot</span>(data=titanic, x=<span class="str">'age'</span>, kind=<span class="str">'hist'</span>, element=<span class="str">'step'</span>, hue=<span class="str">'sex'</span>)</code></pre>
+
+  <p>Faceting using <code>col</code> and <code>row</code> — does <strong>not</strong> work on <code>histplot</code> function (must use figure-level <code>displot</code>):</p>
+<pre><code>sns.<span class="fn">displot</span>(data=titanic, x=<span class="str">'age'</span>, kind=<span class="str">'hist'</span>, element=<span class="str">'step'</span>, col=<span class="str">'sex'</span>)</code></pre>
+
+  <h3>KDE Plot</h3>
+  <p>Rather than using discrete bins, a KDE plot smooths the observations with a Gaussian kernel, producing a continuous density estimate.</p>
+<pre><code>sns.<span class="fn">kdeplot</span>(data=tips, x=<span class="str">'total_bill'</span>)              <span class="com"># y-axis -> density</span>
+sns.<span class="fn">displot</span>(data=tips, x=<span class="str">'total_bill'</span>, kind=<span class="str">'kde'</span>)   <span class="com"># y-axis -> density</span>
+
+<span class="com"># hue -> fill</span>
+sns.<span class="fn">kdeplot</span>(data=tips, x=<span class="str">'total_bill'</span>, hue=<span class="str">'sex'</span>, fill=<span class="kw">True</span>)</code></pre>
+
+  <h3>Rug Plot</h3>
+  <p>Plot marginal distributions by drawing ticks along the x and y axes. This function is intended to complement other plots by showing the location of individual observations in an unobtrusive way.</p>
+<pre><code>sns.<span class="fn">kdeplot</span>(data=tips, x=<span class="str">'total_bill'</span>)
+sns.<span class="fn">rugplot</span>(data=tips, x=<span class="str">'total_bill'</span>)</code></pre>
+
+  <h3>Bivariate Histogram</h3>
+  <p>A bivariate histogram bins the data within rectangles that tile the plot and then shows the count of observations within each rectangle with the fill color.</p>
+<pre><code><span class="com"># sns.histplot(data=tips, x='total_bill', y='tip')</span>
+sns.<span class="fn">displot</span>(data=tips, x=<span class="str">'total_bill'</span>, kind=<span class="str">'hist'</span>, y=<span class="str">'tip'</span>)</code></pre>
+
+  <h3>Bivariate KDE Plot</h3>
+  <p>A bivariate KDE plot smoothes the (x, y) observations with a 2D Gaussian.</p>
+<pre><code>sns.<span class="fn">kdeplot</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>)</code></pre>
+</section>
+
+<section class="card" id="matrix">
+  <h2>3. Matrix Plot</h2>
+  <ul>
+    <li><code>heatmap</code> <span class="tag-axes">axes (no figure-level version)</span></li>
+    <li><code>clustermap</code></li>
+  </ul>
+
+  <h3>Heatmap</h3>
+  <p>Plot rectangular data as a color-encoded matrix.</p>
+<pre><code>temp_df = gap.<span class="fn">pivot</span>(index=<span class="str">'country'</span>, columns=<span class="str">'year'</span>, values=<span class="str">'lifeExp'</span>)
+
+plt.<span class="fn">figure</span>(figsize=(<span class="num">15</span>, <span class="num">15</span>))
+sns.<span class="fn">heatmap</span>(temp_df)
+
+<span class="com"># annot</span>
+temp = gap[gap[<span class="str">'continent'</span>] == <span class="str">'Europe'</span>].<span class="fn">pivot</span>(index=<span class="str">'country'</span>, columns=<span class="str">'year'</span>, values=<span class="str">'lifeExp'</span>)
+plt.<span class="fn">figure</span>(figsize=(<span class="num">15</span>, <span class="num">15</span>))
+sns.<span class="fn">heatmap</span>(temp, annot=<span class="kw">True</span>)
+
+<span class="com"># linewidth</span>
+plt.<span class="fn">figure</span>(figsize=(<span class="num">15</span>, <span class="num">15</span>))
+sns.<span class="fn">heatmap</span>(temp, annot=<span class="kw">True</span>, linewidth=<span class="num">0.5</span>)
+
+<span class="com"># cmap</span>
+plt.<span class="fn">figure</span>(figsize=(<span class="num">15</span>, <span class="num">15</span>))
+sns.<span class="fn">heatmap</span>(temp, annot=<span class="kw">True</span>, linewidth=<span class="num">0.5</span>, cmap=<span class="str">'viridis'</span>)</code></pre>
+
+  <h3>Clustermap</h3>
+  <p>Plot a matrix dataset as a hierarchically-clustered heatmap. <strong>This function requires <code>scipy</code> to be available.</strong></p>
+<pre><code>temp = px.data.<span class="fn">iris</span>()
+sns.<span class="fn">clustermap</span>(temp.iloc[:, [<span class="num">0</span>, <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]])</code></pre>
+</section>
+
+<section class="card" id="categorical">
+  <h2>Categorical Plots <span class="tag-figure">figure: catplot</span></h2>
+
+  <h3>Categorical Scatter Plot</h3>
+  <ul><li><code>stripplot</code></li><li><code>swarmplot</code></li></ul>
+
+  <h3>Categorical Distribution Plots</h3>
+  <ul><li><code>boxplot</code></li><li><code>violinplot</code></li></ul>
+
+  <h3>Categorical Estimate Plot (for central tendency)</h3>
+  <ul><li><code>barplot</code></li><li><code>pointplot</code></li><li><code>countplot</code></li></ul>
+
+  <h3>Strip Plot</h3>
+<pre><code><span class="com"># strip plot -> axes level function</span>
+sns.<span class="fn">stripplot</span>(data=tips, x=<span class="str">'day'</span>, y=<span class="str">'total_bill'</span>, jitter=<span class="kw">False</span>)
+
+<span class="com"># using catplot -> figure level function</span>
+sns.<span class="fn">catplot</span>(data=tips, x=<span class="str">'day'</span>, y=<span class="str">'total_bill'</span>, kind=<span class="str">'strip'</span>)
+
+<span class="com"># jitter + hue</span>
+sns.<span class="fn">stripplot</span>(data=tips, x=<span class="str">'day'</span>, y=<span class="str">'total_bill'</span>, jitter=<span class="num">0.2</span>, hue=<span class="str">'sex'</span>)</code></pre>
+
+  <h3>Swarm Plot</h3>
+  <p>Better representation than strip plot — better for small dataset, not good for large dataset.</p>
+<pre><code>sns.<span class="fn">catplot</span>(data=tips, x=<span class="str">'day'</span>, y=<span class="str">'total_bill'</span>, kind=<span class="str">'swarm'</span>)
+
+<span class="com"># hue</span>
+sns.<span class="fn">swarmplot</span>(data=tips, x=<span class="str">'day'</span>, y=<span class="str">'total_bill'</span>, hue=<span class="str">'sex'</span>)</code></pre>
+
+  <h3>Box Plot</h3>
+  <p>A boxplot is a standardized way of displaying the distribution of data based on a five number summary ("minimum", first quartile [Q1], median, third quartile [Q3] and "maximum"). It can tell you about your outliers and what their values are. Boxplots can also tell you if your data is symmetrical, how tightly your data is grouped, and if and how your data is skewed.</p>
+<pre><code>sns.<span class="fn">boxplot</span>(data=tips, x=<span class="str">'sex'</span>, y=<span class="str">'total_bill'</span>)
+
+<span class="com"># Using catplot</span>
+sns.<span class="fn">catplot</span>(data=tips, x=<span class="str">'sex'</span>, y=<span class="str">'total_bill'</span>, kind=<span class="str">'box'</span>)
+
+<span class="com"># hue</span>
+sns.<span class="fn">boxplot</span>(data=tips, x=<span class="str">'day'</span>, y=<span class="str">'total_bill'</span>, hue=<span class="str">'sex'</span>)
+
+<span class="com"># single boxplot -> numerical col only</span>
+sns.<span class="fn">boxplot</span>(data=tips, y=<span class="str">'total_bill'</span>)</code></pre>
+
+  <h3>Violin Plot = (Boxplot + KDEplot)</h3>
+<pre><code>sns.<span class="fn">violinplot</span>(data=tips, x=<span class="str">'day'</span>, y=<span class="str">'total_bill'</span>)
+
+sns.<span class="fn">catplot</span>(data=tips, x=<span class="str">'day'</span>, y=<span class="str">'total_bill'</span>, hue=<span class="str">'sex'</span>, kind=<span class="str">'box'</span>)
+
+<span class="com"># hue + split</span>
+sns.<span class="fn">violinplot</span>(data=tips, x=<span class="str">'day'</span>, y=<span class="str">'total_bill'</span>, hue=<span class="str">'sex'</span>, split=<span class="kw">True</span>)</code></pre>
+
+  <h3>Bar Plot</h3>
+<pre><code><span class="com"># some issue with errorbar</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+sns.<span class="fn">barplot</span>(data=tips, x=<span class="str">'sex'</span>, y=<span class="str">'total_bill'</span>, hue=<span class="str">'smoker'</span>, estimator=np.min)
+
+sns.<span class="fn">barplot</span>(data=tips, x=<span class="str">'sex'</span>, y=<span class="str">'total_bill'</span>)</code></pre>
+
+  <h3>Point Plot</h3>
+  <p>Bar plot style — bars connected with lines.</p>
+<pre><code><span class="com"># point plot -> bar plot - bars and connect bars</span>
+sns.<span class="fn">pointplot</span>(data=tips, x=<span class="str">'sex'</span>, y=<span class="str">'total_bill'</span>, hue=<span class="str">'smoker'</span>, ci=<span class="kw">None</span>)</code></pre>
+  <div class="note">When there are multiple observations in each category, it also uses bootstrapping to compute a confidence interval around the estimate, which is plotted using error bars.</div>
+
+  <h3>Count Plot</h3>
+  <p>A special case for the bar plot is when you want to show the number of observations in each category rather than computing a statistic for a second variable. This is similar to a histogram over a categorical, rather than quantitative, variable.</p>
+<pre><code>sns.<span class="fn">countplot</span>(data=tips, x=<span class="str">'sex'</span>, hue=<span class="str">'day'</span>)</code></pre>
+
+  <h3>Faceting using catplot</h3>
+<pre><code>sns.<span class="fn">catplot</span>(data=tips, x=<span class="str">'sex'</span>, y=<span class="str">'total_bill'</span>, col=<span class="str">'smoker'</span>, kind=<span class="str">'box'</span>, hue=<span class="str">'sex'</span>, row=<span class="str">'time'</span>)</code></pre>
+</section>
+
+<section class="card" id="regression">
+  <h2>Regression Plots <span class="tag-figure">figure: lmplot</span></h2>
+  <ul>
+    <li><code>regplot</code> <span class="tag-axes">axes</span></li>
+    <li><code>lmplot</code> <span class="tag-figure">figure</span></li>
+  </ul>
+  <p>In the simplest invocation, both functions draw a scatterplot of two variables, x and y, and then fit the regression model <code>y ~ x</code> and plot the resulting regression line and a 95% confidence interval for that regression.</p>
+<pre><code><span class="com"># axes level - hue parameter is NOT available</span>
+sns.<span class="fn">regplot</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>)
+
+<span class="com"># figure level</span>
+sns.<span class="fn">lmplot</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>, hue=<span class="str">'sex'</span>)
+
+<span class="com"># residplot</span>
+sns.<span class="fn">residplot</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>)</code></pre>
+</section>
+
+<section class="card" id="facetgrid">
+  <h2>A second way to plot Facet plots &rarr; FacetGrid</h2>
+  <p>Figure level equivalents that support faceting: <code>relplot</code>, <code>displot</code>, <code>catplot</code>, <code>lmplot</code>.</p>
+<pre><code>sns.<span class="fn">catplot</span>(data=tips, x=<span class="str">'sex'</span>, y=<span class="str">'total_bill'</span>, kind=<span class="str">'violin'</span>, col=<span class="str">'day'</span>)
+
+g = sns.<span class="fn">FacetGrid</span>(data=tips, col=<span class="str">'day'</span>, hue=<span class="str">'sex'</span>)
+g.<span class="fn">map</span>(sns.violinplot, <span class="str">'sex'</span>, <span class="str">'total_bill'</span>)
+g.<span class="fn">add_legend</span>()</code></pre>
+  <div class="note"><code>height</code> and <code>aspect</code> params can control the size of each facet.</div>
+</section>
+
+<section class="card" id="pairgrid">
+  <h2>Plotting Pairwise Relationship (PairGrid vs Pairplot)</h2>
+<pre><code>sns.<span class="fn">pairplot</span>(iris, hue=<span class="str">'species'</span>)
+
+<span class="com"># pair grid + g.map</span>
+g = sns.<span class="fn">PairGrid</span>(data=iris, hue=<span class="str">'species'</span>)
+g.<span class="fn">map</span>(sns.scatterplot)
+
+<span class="com"># map_diag -> map_offdiag</span>
+g = sns.<span class="fn">PairGrid</span>(data=iris, hue=<span class="str">'species'</span>)
+g.<span class="fn">map_diag</span>(sns.histplot)
+g.<span class="fn">map_offdiag</span>(sns.scatterplot)
+
+<span class="com"># map_diag -> map_upper -> map_lower</span>
+g = sns.<span class="fn">PairGrid</span>(data=iris, hue=<span class="str">'species'</span>)
+g.<span class="fn">map_diag</span>(sns.histplot)
+g.<span class="fn">map_upper</span>(sns.kdeplot)
+g.<span class="fn">map_lower</span>(sns.scatterplot)</code></pre>
+  <div class="note"><code>vars</code> parameter can be used to select a subset of columns to plot.</div>
+</section>
+
+<section class="card" id="jointgrid">
+  <h2>JointGrid vs Jointplot</h2>
+<pre><code>sns.<span class="fn">jointplot</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>)
+
+sns.<span class="fn">jointplot</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>, kind=<span class="str">'kde'</span>)
+
+sns.<span class="fn">jointplot</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>, kind=<span class="str">'hist'</span>, hue=<span class="str">'sex'</span>)
+
+g = sns.<span class="fn">JointGrid</span>(data=tips, x=<span class="str">'total_bill'</span>, y=<span class="str">'tip'</span>)
+g.<span class="fn">plot</span>(sns.scatterplot, sns.violinplot)</code></pre>
+</section>
+
+<section class="card" id="utility">
+  <h2>Utility Functions</h2>
+<pre><code><span class="com"># get dataset names</span>
+sns.<span class="fn">get_dataset_names</span>()
+
+<span class="com"># load dataset</span>
+sns.<span class="fn">load_dataset</span>(<span class="str">'flights'</span>)</code></pre>
+</section>
+
+<section class="card" id="quickref">
+  <h2>Quick Reference: Figure-level vs Axes-level Functions</h2>
+  <table>
+    <thead>
+      <tr><th>Category</th><th>Figure-level</th><th>Axes-level</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Relational</td><td><code>relplot</code></td><td><code>scatterplot</code>, <code>lineplot</code></td></tr>
+      <tr><td>Distribution</td><td><code>displot</code></td><td><code>histplot</code>, <code>kdeplot</code>, <code>rugplot</code></td></tr>
+      <tr><td>Categorical</td><td><code>catplot</code></td><td><code>stripplot</code>, <code>swarmplot</code>, <code>boxplot</code>, <code>violinplot</code>, <code>barplot</code>, <code>pointplot</code>, <code>countplot</code></td></tr>
+      <tr><td>Regression</td><td><code>lmplot</code></td><td><code>regplot</code>, <code>residplot</code></td></tr>
+      <tr><td>Matrix</td><td>&mdash;</td><td><code>heatmap</code>, <code>clustermap</code></td></tr>
+      <tr><td>Multiplot Grids</td><td><code>pairplot</code>, <code>jointplot</code></td><td><code>PairGrid</code>, <code>FacetGrid</code>, <code>JointGrid</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Notes</h3>
+  <ul>
+    <li>Faceting (<code>col</code>, <code>row</code>, <code>col_wrap</code>) only works with figure-level functions — not axes-level.</li>
+    <li><code>relplot</code> is square shaped.</li>
+    <li><code>heatmap</code> is axes level — no figure-level version exists.</li>
+    <li><code>clustermap</code> requires <code>scipy</code>.</li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  Seaborn Cheat Sheet · Compiled from Session 25 (Relational, Distribution, Matrix Plots) &amp; Session 26 (Categorical, Regression, Facet/Pair/Joint Grids, Utility Functions)
+</footer>
+
+</body>
+</html>
